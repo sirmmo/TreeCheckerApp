@@ -11,6 +11,7 @@ import {
 import { Button, Icon, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
+import Toast from 'react-native-toast-native';
 import _ from 'lodash';
 
 import { aoiListFetch, refreshSelectedAoi, deleteAOI } from '../actions';
@@ -121,6 +122,23 @@ class ListAOIScreen extends Component {
     );
   }
 
+  onNewButtonPress() {
+    const message = strings.toastAddAOI;
+    if (this.props.isConnected) {
+      this.props.navigation.navigate('createaoi');
+    } else {
+      const style = {
+        backgroundColor: '#ee1b5e20',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 10,
+        borderRadius: 40,
+        fontWeight: 'bold'
+      }
+      Toast.show(message, Toast.LONG, Toast.CENTER, style);
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -140,7 +158,7 @@ class ListAOIScreen extends Component {
         </View>
 
         <ConfirmDialog
-            title={strings.deleteObservation}
+            title={strings.deleteAOI}
             message={strings.confirmDeleteMessage}
             visible={this.state.showDeleteModal}
             color='#8BC34A'
@@ -156,10 +174,6 @@ class ListAOIScreen extends Component {
         />
       </View>
     );
-  }
-
-  onNewButtonPress() {
-    this.props.navigation.navigate('createaoi');
   }
 
 }
@@ -200,10 +214,11 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = ({ geoZonesData, auth }) => {
-  const { loading, currentAoiList, currentGzId, allAoisList} = geoZonesData;
+const mapStateToProps = ({ geoZonesData, auth, network }) => {
+  const { loading, currentAoiList, currentGzId, allAoisList } = geoZonesData;
+  const { isConnected } = network;
   const { token } = auth;
-  return { loading, currentAoiList, currentGzId, allAoisList, token};
+  return { isConnected, loading, currentAoiList, currentGzId, allAoisList, token };
 };
 
 const myListAOIScreen = connect(mapStateToProps, {

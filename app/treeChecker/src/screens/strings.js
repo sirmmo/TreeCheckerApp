@@ -16,6 +16,8 @@ export const strings = new LocalizedStrings({
    go: 'GO',
 
    selectAOItitle: 'Select your area of interest:',
+   deleteAOI: 'Delete AOI',
+   toastAddAOI: 'Functionality only available with connection',
 
    myObservations: 'MY OBSERVATIONS',
 
@@ -43,6 +45,7 @@ export const strings = new LocalizedStrings({
    comment: 'Comment',
    edit: 'Edit',
    delete: 'Delete',
+   deleteImage: 'Delete Image',
    goto: 'Go to',
    mydata: 'My data',
    headerDetailDataScreen: 'Detail Data Observation',

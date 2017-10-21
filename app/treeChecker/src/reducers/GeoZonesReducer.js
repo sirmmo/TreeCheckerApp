@@ -20,6 +20,7 @@ import {
   UPDATE_INDEX_OBS,
   AOI_MODAL_VISIBLE,
   AOI_DELETE,
+  UPDATE_OBS_ALLAOI
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -42,7 +43,7 @@ export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
 
     case CHECK_STATE:
-      console.debug('CHECK_STATE geoZonesData', state.allAoisList);
+      console.debug('CHECK_STATE allAoisList', state.allAoisList);
       return { ...state };
 
     case RESET_STATE:
@@ -127,7 +128,7 @@ export default (state = INITIAL_STATE, action) => {
       const key = action.payload;
       const newAOIList = { ...state.allAoisList };
       delete newAOIList[state.currentGzId][key];
-      return {...state, allAoisList: newAOIList};
+      return { ...state, allAoisList: newAOIList };
     }
     case ADD_NEW_OBS: {
           const { newObs, currentAoiId } = action.payload;
@@ -142,6 +143,26 @@ export default (state = INITIAL_STATE, action) => {
                         obs: {
                           ...state.allAoisList[state.currentGzId][currentAoiId].obs,
                           [newObs.key]: newObs
+                        }
+                      }
+                    }
+                  }
+                };
+    }
+
+    case UPDATE_OBS_ALLAOI: {
+          const { updatedObs, currentAoiId } = action.payload;
+
+          return { ...state,
+                  allAoisList: {
+                    ...state.allAoisList,
+                    [state.currentGzId]: {
+                      ...state.allAoisList[state.currentGzId],
+                      [currentAoiId]: {
+                        ...state.allAoisList[state.currentGzId][currentAoiId],
+                        obs: {
+                          ...state.allAoisList[state.currentGzId][currentAoiId].obs,
+                          [updatedObs.key]: updatedObs
                         }
                       }
                     }
