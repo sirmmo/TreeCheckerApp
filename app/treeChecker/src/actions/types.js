@@ -27,6 +27,7 @@ export const CHECK_STATE = 'check_state';
 export const RESET_STATE = 'reset_state';
 export const UPDATE_OBS_IMAGES = 'update_obs_images';
 export const UPDATE_OBS_TOSYNC = 'update_obs_tosync';
+export const UPDATE_CURRENTAOI_TOSYNC = 'update_currentaoi_tosync';
 
 
 export const REFRESH_CURRENT_AOI = 'refresh_current_aoi';

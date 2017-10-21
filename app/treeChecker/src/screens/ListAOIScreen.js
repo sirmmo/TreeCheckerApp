@@ -123,16 +123,16 @@ class ListAOIScreen extends Component {
   }
 
   onNewButtonPress() {
-    const message = strings.toastAddAOI;
+    const message = strings.funcWithConnection;
     if (this.props.isConnected) {
       this.props.navigation.navigate('createaoi');
     } else {
       const style = {
-        backgroundColor: '#ee1b5e20',
+        backgroundColor: '#dd8BC34A',
         color: '#ffffff',
         fontSize: 15,
-        borderWidth: 10,
-        borderRadius: 40,
+        borderWidth: 5,
+        borderRadius: 80,
         fontWeight: 'bold'
       }
       Toast.show(message, Toast.LONG, Toast.CENTER, style);

@@ -173,9 +173,8 @@ class DetailDataScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#4CAF50',
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 5,
     paddingLeft: 5,
     paddingRight: 5,
@@ -188,10 +187,10 @@ const styles = StyleSheet.create({
     flex: 5,
   },
   containerButtons: {
-    paddingTop: 20,
-    paddingBottom: 5,
+    paddingTop: 15,
     flex: 1,
-    bottom: 5,
+    justifyContent: 'center',
+    flexDirection: 'row'
   },
 
   detailHeader: {
@@ -211,8 +210,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     marginBottom: 10,
-    marginTop:20,
-    flex: 1
+    marginTop:20
   },
   labelName: {
     flex: 2,

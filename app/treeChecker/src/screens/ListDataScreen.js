@@ -10,6 +10,7 @@ import {
 import { Button, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Toast from 'react-native-toast-native';
 import { ProgressDialog } from 'react-native-simple-dialogs';
 import { strings } from './strings.js';
 import { refreshSelectedObs, obsUpdateSaveServer } from '../actions';
@@ -33,7 +34,8 @@ class ListDataScreen extends Component {
   onPressSync(item) {
     console.debug('onPressFile item', item);
     console.debug('currentAoiId', this.props.currentAoi);
-    if (this.props.isConnected) {
+
+    if (this.props.isConnected && item.toSync) {
       this.props.obsUpdateSaveServer(
         item.key,
         this.props.currentAoi.key,
@@ -49,7 +51,16 @@ class ListDataScreen extends Component {
         this.props.token
       );
     } else {
-      //TODO showToast connection needed
+      const message = (!item.toSync ? strings.itemAlreadySync : strings.funcWithConnection);
+      const style = {
+        backgroundColor: '#dd8BC34A',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 5,
+        borderRadius: 80,
+        fontWeight: 'bold'
+      }
+      Toast.show(message, Toast.LONG, Toast.CENTER, style);
     }
   }
 

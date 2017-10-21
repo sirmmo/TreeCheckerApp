@@ -20,7 +20,8 @@ import {
   UPDATE_INDEX_OBS,
   OBS_SELECTED_BY_INDEX,
   UPDATE_OBS_AOI,
-  UPDATE_OBS_ALLAOI
+  UPDATE_OBS_ALLAOI,
+  UPDATE_CURRENTAOI_TOSYNC
 } from './types';
 
 import {
@@ -162,7 +163,7 @@ async function updateImages(dispatch, token, obsKey, aoiId, gzId, images, positi
 
     //currentObs.images = newImageList;
     // dispatch({ type: CHECK_STATE, payload: {} });
-    dispatch({ type: UPDATE_OBS_IMAGES, payload: {obsKey, aoiId, gzId, newImageList: newImageList} });
+    dispatch({ type: UPDATE_OBS_IMAGES, payload: {obsKey, image_aoiId: aoiId, gzId, newImageList: newImageList} });
     // dispatch({ type: CHECK_STATE, payload: {} });
 
     return {success: true, newImgKeys};
@@ -219,12 +220,13 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
     dispatch({ type: SET_SYNC_STATUS, payload: true });
     try {
 
-      let successImgages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
-      let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImgages);
+      let successImages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
+      let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImages);
 
-      const sync = (successData && successImgages.success ? false : true);
+      const sync = (successData && successImages.success ? false : true);
 
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync} });
       dispatch({ type: CHECK_STATE, payload: {} });
       dispatch({ type: SET_SYNC_STATUS, payload: false });
       //TODO show toast message
@@ -234,6 +236,7 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
       console.debug(e);
       //TODO show toast??
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true} });
       dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };

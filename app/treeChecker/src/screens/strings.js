@@ -17,9 +17,10 @@ export const strings = new LocalizedStrings({
 
    selectAOItitle: 'Select your area of interest:',
    deleteAOI: 'Delete AOI',
-   toastAddAOI: 'Functionality only available with connection',
+   funcWithConnection: 'Functionality only available with connection',
 
    myObservations: 'MY OBSERVATIONS',
+   itemAlreadySync: 'Observation already up to date',
 
 
    progressDialog: 'Progress Dialog',

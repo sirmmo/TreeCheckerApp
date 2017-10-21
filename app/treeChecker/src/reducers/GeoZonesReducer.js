@@ -175,21 +175,34 @@ export default (state = INITIAL_STATE, action) => {
 
     case UPDATE_OBS_IMAGES: {
       console.debug('UPDATE_OBS_IMAGES');
-      const { obsKey, aoiId, gzId, newImageList } = action.payload;
+      const { obsKey, image_aoiId, gzId, newImageList } = action.payload;
       // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
       return { ...state,
               allAoisList: {
                 ...state.allAoisList,
                 [gzId]: {
                   ...state.allAoisList[gzId],
-                  [aoiId]: {
-                    ...state.allAoisList[gzId][aoiId],
+                  [image_aoiId]: {
+                    ...state.allAoisList[gzId][image_aoiId],
                     obs: {
-                      ...state.allAoisList[gzId][aoiId].obs,
+                      ...state.allAoisList[gzId][image_aoiId].obs,
                       [obsKey]: {
-                        ...state.allAoisList[gzId][aoiId].obs[obsKey],
+                        ...state.allAoisList[gzId][image_aoiId].obs[obsKey],
                         images: newImageList
                       }
+                    }
+                  }
+                }
+              },
+              currentAoiList: {
+                ...state.currentAoiList,
+                [image_aoiId]: {
+                  ...state.currentAoiList[image_aoiId],
+                  obs: {
+                    ...state.currentAoiList[image_aoiId].obs,
+                    [obsKey]: {
+                      ...state.currentAoiList[image_aoiId].obs[obsKey],
+                      images: newImageList
                     }
                   }
                 }
@@ -216,6 +229,19 @@ export default (state = INITIAL_STATE, action) => {
                         ...state.allAoisList[sgzId][saoiId].obs[sobsKey],
                         toSync: sync
                       }
+                    }
+                  }
+                }
+              },
+              currentAoiList: {
+                ...state.currentAoiList,
+                [saoiId]: {
+                  ...state.currentAoiList[saoiId],
+                  obs: {
+                    ...state.currentAoiList[saoiId].obs,
+                    [sobsKey]: {
+                      ...state.currentAoiList[saoiId].obs[sobsKey],
+                      toSync: sync
                     }
                   }
                 }

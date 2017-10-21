@@ -155,12 +155,9 @@ class EditDataScreen extends Component {
   }
 
   renderButtons() {
-    console.debug('this.props.navigation', this.props.navigation);
-    const { goBack } = this.props.navigation;
-    const size = 100;
     if (this.props.isSaving) {
-      return(
-        <MySpinner type='ThreeBounce' color='#FFFFFF' />
+      return (
+        <MySpinner size="large" mystyle={{ paddingBotoom: 20 }} />
       );
     }
 
