@@ -40,7 +40,7 @@ class Slides extends Component {
 			if (i === this.state.currentSlide) {
 				pages.push(<View style={{ backgroundColor: '#8BC34A', flex: 1, borderRadius: 25 }} />);
 			} else {
-				pages.push(<View style={{ backgroundColor: '#757575', flex: 1, borderRadius: 25 }} />);
+				pages.push(<View style={{ backgroundColor: '#BDBDBD', flex: 1, borderRadius: 25 }} />);
 			}
 		}
 
@@ -78,8 +78,7 @@ class Slides extends Component {
 				{this.renderPagination()}
 
 				<Button
-          raised
-          buttonStyle={styles.ContButtonStyle}
+          buttonStyle={styles.reverseButtonStyle}
 					backgroundColor={this.state.buttonColor}
           title={this.state.textButton}
           underlayColor='#c2c2c2'
@@ -98,7 +97,7 @@ const styles = {
 		paddingTop: 20,
 		paddingLeft: 10,
 		paddingRight: 10,
-		backgroundColor: '#ffffff'
+		backgroundColor: '#388E3C'
 	},
 	ContPager: {
 		flex: 3,
@@ -106,8 +105,9 @@ const styles = {
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	ContButtonStyle: {
-
+	reverseButtonStyle: {
+		borderColor: '#ffffff',
+		borderWidth: 1
 	},
 	slideStyle: {
 		flex: 1,
@@ -120,14 +120,16 @@ const styles = {
 		fontSize: 20,
 		fontWeight: 'bold',
 		padding: 5,
-		flex: 1
+		flex: 1,
+		color: '#ffffff'
 	},
 	slideTextStyle: {
 		fontSize: 15,
 		flex: 2,
 		textAlign: 'justify',
 		paddingLeft: 4,
-		paddingRight: 4
+		paddingRight: 4,
+		color: '#ffffff'
 	},
 	buttonStyle: {
 		justifyContent: 'center',

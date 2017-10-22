@@ -1,6 +1,6 @@
 /*URLS*/
-//const URL_BASE2 = 'http://your-domain.com';
-const URL_BASE = 'http://0e097f6f.gclientes.com';
+const URL_BASE2 = 'http://your-domain.com';
+
 export const URL_STATIC = `${URL_BASE}/`;
 export const URL_STATIC_OBS = `${URL_BASE}/obs/`;
 export const URL_STATIC_GZ = `${URL_BASE}/gz/`;

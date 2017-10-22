@@ -157,7 +157,7 @@ class EditDataScreen extends Component {
   renderButtons() {
     if (this.props.isSaving) {
       return (
-        <MySpinner size="large" mystyle={{ paddingBotoom: 20 }} />
+        <MySpinner size="large" mystyle={{ paddingBottom: 20 }} />
       );
     }
 
