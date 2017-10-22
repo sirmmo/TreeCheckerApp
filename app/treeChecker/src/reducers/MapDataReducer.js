@@ -4,11 +4,13 @@ import {
   AOI_ID_SELECTED,
   OBS_SELECTED,
   ADD_NEW_OBS,
+  UPDATE_OBS_AOI,
   SET_URL_MAP_OFFLINE,
   REFRESH_CURRENT_AOI,
   OBS_SELECTED_BY_INDEX,
   SET_SYNC_STATUS,
-  CHECK_STATE
+  CHECK_STATE,
+  UPDATE_CURRENTAOI_TOSYNC
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -30,7 +32,7 @@ export default (state = INITIAL_STATE, action) => {
     //   return { ...state, obsList: action.payload.obsList, currentAoiId: action.payload.currentAoiId };
 
     case CHECK_STATE:
-      console.debug('CHECK_STATE geoZonesData', state.allAoisList);
+      console.debug('CHECK_STATE currentAoi', state.currentAoi);
       return { ...state };
 
     case SET_SYNC_STATUS:
@@ -55,6 +57,37 @@ export default (state = INITIAL_STATE, action) => {
 
     case OBS_SELECTED_BY_INDEX:
       return { ...state, currentObs: state.currentAoi.obs[action.payload] };
+
+    case UPDATE_OBS_AOI:
+      return { ...state,
+              currentAoi: {
+                ...state.currentAoi,
+                obs: {
+                  ...state.currentAoi.obs,
+                  [action.payload]: state.currentObs
+                }
+              }
+            };
+    case UPDATE_CURRENTAOI_TOSYNC: {
+    console.debug('UPDATE_CURRENTAOI_TOSYNC', action.payload);
+      const { sobsKey, saoiId, sync } = action.payload;
+      // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
+      if (state.currentAoiId === saoiId) {
+        return { ...state,
+                currentAoi: {
+                  ...state.currentAoi,
+                  obs: {
+                    ...state.currentAoi.obs,
+                    [sobsKey]: {
+                      ...state.currentAoi.obs[sobsKey],
+                      toSync: sync
+                    }
+                  }
+                }
+              };
+      }
+        return { ...state };
+    }
 
     // case ADD_NEW_OBS:
     //     console.debug('ADD_NEW_OBS', action.payload);

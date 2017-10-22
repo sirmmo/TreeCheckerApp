@@ -16,6 +16,7 @@ import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.reactlibrary.RNSimpleCompassPackage;
 import com.react.rnspinkit.RNSpinkitPackage;
+import com.toast.RCTToastPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +40,8 @@ public class MainApplication extends Application implements ReactApplication {
             new ReactNativeLocalizationPackage(),
             new ImagePickerPackage(),
             new RNSimpleCompassPackage(),
-            new RNSpinkitPackage()
+            new RNSpinkitPackage(),
+            new RCTToastPackage()
       );
     }
   };

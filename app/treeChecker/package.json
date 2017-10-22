@@ -24,6 +24,7 @@
     "react-native-simple-dialogs": "^0.2.5",
     "react-native-spinkit": "^1.1.1",
     "react-native-static-server": "git+https://github.com/jessisena/react-native-static-server.git",
+    "react-native-toast-native": "^1.2.1",
     "react-native-vector-icons": "^4.4.0",
     "react-native-viewpager": "^0.2.13",
     "react-native-webview-messaging": "^1.1.0",

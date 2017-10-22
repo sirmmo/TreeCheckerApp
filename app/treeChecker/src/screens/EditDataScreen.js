@@ -119,9 +119,10 @@ class EditDataScreen extends Component {
     const crownItem = this.props.crownList[this.props.crown_diameter];
     const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
 
-    let res = await this.props.obsUpdateSaveLocal(
+    await this.props.obsUpdateSaveLocal(
       // this.props.navigation,
       this.props.currentObs,
+      this.props.currentAoiId,
       this.props.name,
       treeItem, //this.props.tree_specie,
       canopyItem, //this.props.canopy_status,
@@ -130,9 +131,9 @@ class EditDataScreen extends Component {
       this.props.position,
       this.props.images
     );
-    console.debug('res await save local', res);
+    //console.debug('res await save local', res);
 
-    this.props.obsUpdateSaveServer(
+    await this.props.obsUpdateSaveServer(
 
       this.props.currentObs.key, //this.props.currentObs,
       this.props.currentAoiId,
@@ -154,12 +155,9 @@ class EditDataScreen extends Component {
   }
 
   renderButtons() {
-    console.debug('this.props.navigation', this.props.navigation);
-    const { goBack } = this.props.navigation;
-    const size = 100;
     if (this.props.isSaving) {
-      return(
-        <MySpinner type='ThreeBounce' color='#FFFFFF' />
+      return (
+        <MySpinner size="large" mystyle={{ paddingBottom: 20 }} />
       );
     }
 
@@ -235,7 +233,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    marginBottom: 25
+    marginBottom: 10
   },
   containerMap: {
     width: '100%',

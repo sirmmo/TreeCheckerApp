@@ -45,8 +45,6 @@ class DetailDataScreen extends Component {
   renderButtons(currentObs) {
     return (
       <View style={styles.rowButtons}>
-
-
             <Button
               raised
               iconRight
@@ -75,8 +73,10 @@ class DetailDataScreen extends Component {
   }
 
   _renderImageItem = ({ item }) => {
+
+    const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
     return (
-      <Image style={{marginRight: 5, width: 200, height: 200 }} source={{uri: `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` }} />
+      <Image style={{marginRight: 5, width: 200, height: 200 }} source={{uri: img_uri }} />
     );
   }
 
@@ -174,26 +174,28 @@ class DetailDataScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 40,
-    paddingBottom: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
     paddingLeft: 5,
     paddingRight: 5,
     alignItems: 'center',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   containerData: {
     width: '100%',
-    flex: 4,
+    flex: 5,
   },
   containerButtons: {
     paddingTop: 15,
-    paddingBottom: 5,
     flex: 1,
-    bottom: 5,
+    justifyContent: 'center',
+    flexDirection: 'row'
   },
 
   detailHeader: {
+    borderWidth: 2,
+    borderColor: '#ffffff',
     backgroundColor: '#4CAF50',
   },
   labelHeader: {
@@ -208,8 +210,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     marginBottom: 10,
-    marginTop:20,
-    flex: 1
+    marginTop:20
   },
   labelName: {
     flex: 2,

@@ -18,7 +18,10 @@ import {
   OBS_SAVE_SUCCESS,
   OBS_DELETE,
   UPDATE_INDEX_OBS,
-  OBS_SELECTED_BY_INDEX
+  OBS_SELECTED_BY_INDEX,
+  UPDATE_OBS_AOI,
+  UPDATE_OBS_ALLAOI,
+  UPDATE_CURRENTAOI_TOSYNC
 } from './types';
 
 import {
@@ -100,8 +103,16 @@ async function uploadImage(token, img, obsKey, latitude, longitude) {
     }
   });
 
+    // RNFS.readFile(f1, 'utf8').then(contents => {
+    //    this.assert('Read F1', contents, 'foo © bar 𝌆 bazbaz 𝌆 bar © foo');
+    //  });
+
+    let contents = await RNFS.readFile(img.url, 'base64');
+
+    console.debug('contents', `data:image/${img.type};base64,${contents}`);
+
     let { data } = await instance.post(URL_UPLOAD_IMG, {
-      image: img.data
+      image: `data:image/${img.type};base64,${contents}` //img.data
     });
 
     console.debug('imatge pujada:', data);
@@ -114,9 +125,10 @@ async function uploadImage(token, img, obsKey, latitude, longitude) {
       url: data.url
     });
     //
-    // console.debug('response', response);
+    console.debug('response imatge', response);
     console.debug('${RNFS.ExternalDirectoryPath}${data.url}', `${RNFS.ExternalDirectoryPath}/pictures/static${data.url}`);
-    let wr = await RNFS.writeFile(`${RNFS.ExternalDirectoryPath}/pictures/static${data.url}`, img.data, 'base64');
+    let wr = await RNFS.writeFile(`${RNFS.ExternalDirectoryPath}/pictures${data.url}`, contents, 'base64');
+    //let wr = await RNFS.copyFile(img.url, `${RNFS.ExternalDirectoryPath}/pictures/static${data.url}`);
     console.debug('---------------------------------------------------------------uploadimage....');
     return ({
       key: response.data.key,
@@ -151,7 +163,7 @@ async function updateImages(dispatch, token, obsKey, aoiId, gzId, images, positi
 
     //currentObs.images = newImageList;
     // dispatch({ type: CHECK_STATE, payload: {} });
-    dispatch({ type: UPDATE_OBS_IMAGES, payload: {obsKey, aoiId, gzId, newImageList: newImageList} });
+    dispatch({ type: UPDATE_OBS_IMAGES, payload: {obsKey, image_aoiId: aoiId, gzId, newImageList: newImageList} });
     // dispatch({ type: CHECK_STATE, payload: {} });
 
     return {success: true, newImgKeys};
@@ -208,12 +220,13 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
     dispatch({ type: SET_SYNC_STATUS, payload: true });
     try {
 
-      let successImgages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
-      let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImgages);
+      let successImages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
+      let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImages);
 
-      const sync = (successData && successImgages.success ? false : true);
+      const sync = (successData && successImages.success ? false : true);
 
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync} });
       dispatch({ type: CHECK_STATE, payload: {} });
       dispatch({ type: SET_SYNC_STATUS, payload: false });
       //TODO show toast message
@@ -223,6 +236,7 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
       console.debug(e);
       //TODO show toast??
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true} });
       dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
@@ -234,23 +248,40 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
   return thunk;
 };
 
-export const obsUpdateSaveLocal = ( currentObs, name, tree_specie, crown_diameter, canopy_status, comment, position, images ) => {
+export const obsUpdateSaveLocal = ( currentObs, currentAoiId, name, tree_specie, crown_diameter, canopy_status, comment, position, images ) => {
 
   async function thunk(dispatch) {
     console.debug('obsUpdateSaveLocal', currentObs);
     dispatch({ type: SET_SAVING_STATUS, payload: true });
 
-    currentObs.name = name;
-    currentObs.tree_specie = tree_specie;
-    currentObs.crown_diameter = crown_diameter;
-    currentObs.canopy_status = canopy_status;
-    currentObs.comment = comment;
-    currentObs.position.latitude = position.latitude;
-    currentObs.position.longitude = position.longitude;
-    currentObs.images = images;
-    currentObs.toSync = true;//TODO revisar
+    // const updatedObs = {
+    //   name: name,
+    //   tree_specie: tree_specie,
+    //   crown_diameter: crown_diameter,
+    //   canopy_status: canopy_status,
+    //   comment: comment,
+    //   position: position,
+    //   images: images,
+    //   toSync: true//TODO revisar
+    // };
 
-    dispatch({ type: OBS_SELECTED, payload: currentObs });
+    const updatedObs = { ...currentObs };
+
+    updatedObs.name = name;
+    updatedObs.tree_specie = tree_specie;
+    updatedObs.crown_diameter = crown_diameter;
+    updatedObs.canopy_status = canopy_status;
+    updatedObs.comment = comment;
+    updatedObs.position.latitude = position.latitude;
+    updatedObs.position.longitude = position.longitude;
+    updatedObs.images = images;
+    updatedObs.toSync = true;//TODO revisar
+
+    dispatch({ type: OBS_SELECTED, payload: updatedObs });
+    dispatch({ type: UPDATE_OBS_AOI, payload: updatedObs.key });
+    dispatch({ type: UPDATE_OBS_ALLAOI, payload: { updatedObs, currentAoiId} });
+
+
     dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: SET_SAVING_STATUS, payload: false });
     // dispatch({ type: OBS_SAVE_SUCCESS, payload: {} });

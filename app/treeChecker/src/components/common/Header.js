@@ -22,7 +22,7 @@ const styles = {
     alignItems: 'center',
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
-    height: 60,
+    height: 40,
     paddingTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

@@ -25,7 +25,7 @@ class Slides extends Component {
 			>
 				<Text style={slideTitleStyle}>{slide.title}</Text>
 				<Text style={slideTextStyle}>{slide.text}</Text>
-				<Image resizeMode='contain' style={{width: '50%', flex:2}} source={slide.imgFile} />
+				<Image resizeMode='contain' style={{width: '100%', flex:4 }} source={slide.imgFile} />
 			</View>
 		);
 	}
@@ -40,7 +40,7 @@ class Slides extends Component {
 			if (i === this.state.currentSlide) {
 				pages.push(<View style={{ backgroundColor: '#8BC34A', flex: 1, borderRadius: 25 }} />);
 			} else {
-				pages.push(<View style={{ backgroundColor: '#757575', flex: 1, borderRadius: 25 }} />);
+				pages.push(<View style={{ backgroundColor: '#BDBDBD', flex: 1, borderRadius: 25 }} />);
 			}
 		}
 
@@ -69,7 +69,7 @@ class Slides extends Component {
 
 				<ViewPagerAndroid
 					initialPage={0}
-					style={{ flex: 1 }}
+					style={styles.ContPager}
 					onPageSelected={this.updatePagination.bind(this)}
 				>
 					{this.renderSlides()}
@@ -78,8 +78,7 @@ class Slides extends Component {
 				{this.renderPagination()}
 
 				<Button
-          raised
-          containerViewStyle={styles.ContButtonStyle}
+          buttonStyle={styles.reverseButtonStyle}
 					backgroundColor={this.state.buttonColor}
           title={this.state.textButton}
           underlayColor='#c2c2c2'
@@ -94,28 +93,43 @@ class Slides extends Component {
 const styles = {
 	SlidesContainer: {
 		flex: 1,
-		paddingBottom: 10,
+		paddingBottom: 20,
+		paddingTop: 20,
 		paddingLeft: 10,
 		paddingRight: 10,
-		backgroundColor: '#ffffff'
+		backgroundColor: '#388E3C'
+	},
+	ContPager: {
+		flex: 3,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	reverseButtonStyle: {
+		borderColor: '#ffffff',
+		borderWidth: 1
 	},
 	slideStyle: {
 		flex: 1,
-		justifyContent: 'space-around',
+		justifyContent: 'space-between',
 		alignItems: 'center',
 		padding: 5
 	},
 	slideTitleStyle: {
+		paddingTop: 10,
 		fontSize: 20,
+		fontWeight: 'bold',
 		padding: 5,
-		flex: 1
+		flex: 1,
+		color: '#ffffff'
 	},
 	slideTextStyle: {
 		fontSize: 15,
-		paddingTop: 15,
-		flex: 1,
+		flex: 2,
 		textAlign: 'justify',
-		justifyContent: 'center',
+		paddingLeft: 4,
+		paddingRight: 4,
+		color: '#ffffff'
 	},
 	buttonStyle: {
 		justifyContent: 'center',

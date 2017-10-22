@@ -14,6 +14,7 @@ import LocalizedStrings from 'react-native-localization';
 import ImagePicker from 'react-native-image-picker';
 import RNSimpleCompass from 'react-native-simple-compass';
 import RNFS from 'react-native-fs';
+import { ConfirmDialog } from 'react-native-simple-dialogs';
 
 import { Card, CardSection, CardSectionCol, Confirm } from '../components/common';
 import { obsUpdate } from '../actions';
@@ -24,23 +25,27 @@ class EditDataForm extends Component {
 
 state = { showModal: false, item: {} };
 
-  _renderImageItem = ({ item }) => (
+  _renderImageItem = ({ item }) => {
+    const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
+    return (
     <CardNative
-      image={{ uri: `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` }} >
+      containerStyle={{ backgroundColor: '#C8E6C9' }}
+      image={{ uri: img_uri }} >
       <Button
         //onPress={this.onPressDeleteImage.bind(this, item)}
         onPress={() => this.setState({ showModal: !this.state.showModal, item })}
         icon={{name: 'trash', type: 'font-awesome'}}
-        backgroundColor='#03A9F4'
+        backgroundColor='#b71c1c'
         buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
         title={strings.delete} />
     </CardNative>
     );
+  }
 
   onPressDeleteImage() {
     const { item } = this.state;
-    console.debug('deleteimage item', item);
-    const imgArray = this.props.images;
+    // console.debug('deleteimage item', item);
+    const imgArray = [...this.props.images];
     _.remove(imgArray, item);
     this.props.obsUpdate({ prop: 'images', value: imgArray })
     this.setState({ showModal: false });
@@ -70,15 +75,18 @@ state = { showModal: false, item: {} };
         RNSimpleCompass.start(3, (degree) => {
           console.debug('You are facing', degree);
           RNSimpleCompass.stop();
-          const imgArray = this.props.images;
+          const imgArray = [...this.props.images];
+          console.debug('imgArray', imgArray);
           imgArray.push({
             url: response.path,
+            uri: response.uri,
             key: `new_${response.fileName}`,
             compass: degree,
-            data: `data:image/jpeg;base64,${response.data}`
+            type: response.type
+            //data: `data:image/jpeg;base64,${response.data}`
           });
           this.props.obsUpdate({ prop: 'images', value: imgArray })
-        });
+        }, err => console.debug('error compass', err));
       }
     });
   }
@@ -99,7 +107,7 @@ state = { showModal: false, item: {} };
         </View>
         <FlatList
           data={this.props.images}
-          // extraData={this.state}
+          extraData={this.props.images}
           horizontal
           keyExtractor={(item, index) => item.key}
           renderItem={this._renderImageItem}
@@ -137,7 +145,7 @@ state = { showModal: false, item: {} };
   renderForm() {
     console.debug('this.props.canopyList', this.props.canopyList);
     return(
-      <Card>
+      <Card style={{width: '100%'}}>
 
             <CardSectionCol >
               <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
@@ -185,13 +193,20 @@ state = { showModal: false, item: {} };
         <ScrollView style={styles.containerScroll}>
           {this.renderForm()}
         </ScrollView>
-        <Confirm
-          visible={this.state.showModal}
-          onAccept={this.onPressDeleteImage.bind(this)}
-          onDecline={this.onDecline.bind(this)}
-        >
-          {strings.confirmDeleteMessage}
-        </Confirm>
+        <ConfirmDialog
+            title={strings.deleteImage}
+            message={strings.confirmDeleteMessage}
+            visible={this.state.showModal}
+            onTouchOutside={() => this.setState({ showModal: false })}
+            positiveButton={{
+                title: strings.yes,
+                onPress: () => this.onPressDeleteImage()
+            }}
+            negativeButton={{
+                title: strings.no,
+                onPress: () => this.setState({ showModal: false })
+            }}
+        />
       </View>
     );
   }

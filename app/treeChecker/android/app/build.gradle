@@ -133,6 +133,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-toast-native')
     compile project(':react-native-spinkit')
     compile project(':react-native-simple-compass')
     compile project(':react-native-image-picker')

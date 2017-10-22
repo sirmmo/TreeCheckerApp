@@ -27,6 +27,7 @@ export const CHECK_STATE = 'check_state';
 export const RESET_STATE = 'reset_state';
 export const UPDATE_OBS_IMAGES = 'update_obs_images';
 export const UPDATE_OBS_TOSYNC = 'update_obs_tosync';
+export const UPDATE_CURRENTAOI_TOSYNC = 'update_currentaoi_tosync';
 
 
 export const REFRESH_CURRENT_AOI = 'refresh_current_aoi';
@@ -47,5 +48,7 @@ export const ADD_NEW_OBS = 'add_new_obs';
 export const UPDATE_INDEX_OBS = 'update_index_obs';
 export const OBS_DELETE = 'obs_delete';
 export const OBS_SELECTED_BY_INDEX = 'obs_Selected_by_index';
+export const UPDATE_OBS_AOI = 'update_obs_aoi';
+export const UPDATE_OBS_ALLAOI = 'update_obs_allaoi';
 
 export const AOI_DELETE = 'aoi_delete';
