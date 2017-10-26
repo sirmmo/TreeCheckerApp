@@ -5,11 +5,9 @@ import { Button } from 'react-native-elements';
 
 class Slides extends Component {
 
-	state = { currentSlide: 0, textButton: 'Skip', buttonColor: '#BDBDBD' };
+	state = { currentSlide: 0, textButton: 'Skip', buttonColor: '#388E3C' };
 
 	renderSlides() {
-
-
 		return this.props.data.map((slide) =>
 			this.renderSlide(slide)
 		);
@@ -25,7 +23,7 @@ class Slides extends Component {
 			>
 				<Text style={slideTitleStyle}>{slide.title}</Text>
 				<Text style={slideTextStyle}>{slide.text}</Text>
-				<Image resizeMode='contain' style={{width: '100%', flex:4 }} source={slide.imgFile} />
+				<Image resizeMode='contain' style={{ width: '140%', flex: 10, marginTop: 5 }} source={slide.imgFile} />
 			</View>
 		);
 	}
@@ -38,14 +36,14 @@ class Slides extends Component {
 
 		for (let i = 0; i < size; i++) {
 			if (i === this.state.currentSlide) {
-				pages.push(<View style={{ backgroundColor: '#8BC34A', flex: 1, borderRadius: 25 }} />);
+				pages.push(<View style={{ backgroundColor: '#8BC34A', flex: 1, borderRadius: 10, width: 10, height: 10, marginRight: 1, marginLeft: 1 }} />);
 			} else {
-				pages.push(<View style={{ backgroundColor: '#BDBDBD', flex: 1, borderRadius: 25 }} />);
+				pages.push(<View style={{ backgroundColor: '#ffffff', flex: 1, borderRadius: 10, width: 10, height: 10, marginRight: 1, marginLeft: 1 }} />);
 			}
 		}
 
 		return (
-			<View style={{ flexDirection: 'row', height: 50, padding: 20, marginBottom: 50 }}>
+			<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: 20 }}>
 				{pages}
 			</View>
 		);
@@ -55,7 +53,7 @@ class Slides extends Component {
 		console.debug(e.nativeEvent.position);
 		console.debug(this.state.currentSlide);
 		if (e.nativeEvent.position === (this.props.data.length - 1)) this.setState({ buttonColor: '#8BC34A', textButton: 'Finish', currentSlide: e.nativeEvent.position });
-		else this.setState({ buttonColor: '#BDBDBD' , textButton: 'Skip', currentSlide: e.nativeEvent.position });
+		else this.setState({ buttonColor: '#388E3C' , textButton: 'Skip', currentSlide: e.nativeEvent.position });
 	}
 
 	onButtonPress() {
@@ -81,7 +79,7 @@ class Slides extends Component {
           buttonStyle={styles.reverseButtonStyle}
 					backgroundColor={this.state.buttonColor}
           title={this.state.textButton}
-          underlayColor='#c2c2c2'
+          underlayColor='#388E3C'
           onPress={this.onButtonPress.bind(this)}
         />
 
@@ -94,7 +92,7 @@ const styles = {
 	SlidesContainer: {
 		flex: 1,
 		paddingBottom: 20,
-		paddingTop: 20,
+		paddingTop: 10,
 		paddingLeft: 10,
 		paddingRight: 10,
 		backgroundColor: '#388E3C'
@@ -113,20 +111,19 @@ const styles = {
 		flex: 1,
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		padding: 5
+		padding: 5,
 	},
 	slideTitleStyle: {
-		paddingTop: 10,
-		fontSize: 20,
+		fontSize: 22,
 		fontWeight: 'bold',
 		padding: 5,
 		flex: 1,
 		color: '#ffffff'
 	},
 	slideTextStyle: {
-		fontSize: 15,
+		fontSize: 14,
 		flex: 2,
-		textAlign: 'justify',
+		textAlign: 'center',
 		paddingLeft: 4,
 		paddingRight: 4,
 		color: '#ffffff'

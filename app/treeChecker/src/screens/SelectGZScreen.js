@@ -59,6 +59,7 @@ class SelectGZScreen extends Component {
               titleStyle={styles.cardTitle}
               keyExtractor={(item, index) => item.key}
               image={{ uri: `file://${RNFS.ExternalDirectoryPath}/pictures/gz/${item.key}.png` }}
+              imageStyle={{height: 200 }}
               >
               <Text style={{marginBottom: 10, fontSize: 20}}>
               </Text>
@@ -98,7 +99,8 @@ class SelectGZScreen extends Component {
   const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 20
+    paddingBottom: 20,
+    backgroundColor: '#C8E6C9'
   },
   headerText: {
     fontWeight: 'bold',

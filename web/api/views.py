@@ -135,7 +135,12 @@ def observationView(request, id):
 				obj = obs[0]
 
 				data['tree_specie'] = getTreeSpecie(data['tree_specie'], request)
-				serialized = SurveyDataWriteSerializer(obj, data=data)
+				if 'images' in data:
+					imagesToKeep = data['images']
+				else:
+					imagesToKeep = []
+
+				serialized = SurveyDataWriteSerializer(obj, data=data, context={'imagesToKeep': imagesToKeep})
 
 				if(serialized.is_valid()):
 

@@ -1,6 +1,9 @@
 import axios from 'axios';
 import RNFS from 'react-native-fs';
 import { NavigationActions } from 'react-navigation';
+import Toast from 'react-native-toast-native';
+import { strings } from '../screens/strings.js';
+
 import {
   REFRESH_CURRENT_AOI,
   AOI_ID_SELECTED,
@@ -10,6 +13,7 @@ import {
   OBS_RESET,
   OBS_CREATE,
   ADD_NEW_OBS,
+  ADD_OBS_AOI,
   SET_SAVING_STATUS,
   SET_SYNC_STATUS,
   CHECK_STATE,
@@ -17,7 +21,10 @@ import {
   UPDATE_OBS_TOSYNC,
   OBS_SAVE_SUCCESS,
   OBS_DELETE,
+  OBS_DELETE_LOCAL,
   UPDATE_INDEX_OBS,
+  UPDATE_INDEX_OBS_AOI,
+  OBS_DELETE_AOI,
   OBS_SELECTED_BY_INDEX,
   UPDATE_OBS_AOI,
   UPDATE_OBS_ALLAOI,
@@ -212,12 +219,12 @@ async function updateData(token, obsKey, name, tree_specie, crown_diameter, cano
 
 }
 
-export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, token ) => {
+export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, token, fromListDataScreen ) => {
 
   async function thunk(dispatch) {
 
     console.debug('*********obsUpdateSaveServer');
-    dispatch({ type: SET_SYNC_STATUS, payload: true });
+    if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: true });
     try {
 
       let successImages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
@@ -228,16 +235,29 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync} });
       dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync} });
       dispatch({ type: CHECK_STATE, payload: {} });
-      dispatch({ type: SET_SYNC_STATUS, payload: false });
-      //TODO show toast message
-      //TODO Update les altres llistes de l'estat no?
+      if ( fromListDataScreen ) {
+        dispatch({ type: SET_SYNC_STATUS, payload: false });
+      } else {
+        const style = {
+          backgroundColor: '#dd8BC34A',
+          color: '#ffffff',
+          fontSize: 15,
+          borderWidth: 5,
+          borderRadius: 80,
+          fontWeight: 'bold',
+          yOffset: 40
+        }
+        const message = `"${name}" ${strings.obshasbeensync}`;
+        Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
+      }
+
 
     } catch(e) {
       console.debug(e);
       //TODO show toast??
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
       dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true} });
-      dispatch({ type: SET_SYNC_STATUS, payload: false });
+      if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
   thunk.interceptInOffline = true;
@@ -253,17 +273,6 @@ export const obsUpdateSaveLocal = ( currentObs, currentAoiId, name, tree_specie,
   async function thunk(dispatch) {
     console.debug('obsUpdateSaveLocal', currentObs);
     dispatch({ type: SET_SAVING_STATUS, payload: true });
-
-    // const updatedObs = {
-    //   name: name,
-    //   tree_specie: tree_specie,
-    //   crown_diameter: crown_diameter,
-    //   canopy_status: canopy_status,
-    //   comment: comment,
-    //   position: position,
-    //   images: images,
-    //   toSync: true//TODO revisar
-    // };
 
     const updatedObs = { ...currentObs };
 
@@ -314,7 +323,8 @@ async function addData(token, currentAoiId, name, tree_specie, crown_diameter, c
       }
 
       let response = await instance.post(`${URL_API_AOIS}${currentAoiId}/observations/`, newData);
-      if (response.status == 200 ) return {success: true, obsKey: response.data.key};
+      console.debug('addData response', response);
+      if (response.status === 200 ) return {success: true, obsKey: response.data.key };
       else return {success: false, obsKey: ''};
 
   } catch(error) {
@@ -324,38 +334,54 @@ async function addData(token, currentAoiId, name, tree_specie, crown_diameter, c
 
 }
 
-export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, token ) => {
+export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, token, fromListDataScreen ) => {
 
   async function thunk(dispatch) {
 
-    console.debug('*********obsUpdateSaveServer');
-
+    console.debug('*********obsCreateSaveServer');
+    if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: true });
     try {
 
       let successData = await addData(token, currentAoiId, name, tree_specie, crown_diameter, canopy_status, comment, position, compass);
 
-
       if(successData.success){
 
         dispatch({ type: UPDATE_INDEX_OBS, payload: { newKey: successData.obsKey, oldKey: currentObsKey, aoiId: currentAoiId } });
-        dispatch({ type: OBS_DELETE, payload: { key: currentObsKey, currentAoiId} });
+        dispatch({ type: UPDATE_INDEX_OBS_AOI, payload: { newKey: successData.obsKey, oldKey: currentObsKey } });
+        dispatch({ type: OBS_DELETE, payload: { key: currentObsKey, currentAoiId, currentGzId} });
+
+        //dispatch({ type: OBS_DELETE_AOI, payload: { key: currentObsKey } });
 
         let successImgages = await updateImages(dispatch, token, successData.obsKey, currentAoiId, currentGzId, images, position);
 
         if(successImgages.success){
             dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: false} });
+            dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sync: false } });
+            if ( fromListDataScreen ) {
+              dispatch({ type: SET_SYNC_STATUS, payload: false });
+            } else {
+              const style = {
+                backgroundColor: '#dd8BC34A',
+                color: '#ffffff',
+                fontSize: 15,
+                borderWidth: 5,
+                borderRadius: 80,
+                fontWeight: 'bold',
+                yOffset: 40
+              }
+              const message = `"${name}" ${strings.obshasbeensync}`;
+              Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
+            }
         }
       }
 
       dispatch({ type: CHECK_STATE, payload: {} });
 
-      //TODO show toast message
-      //TODO Update les altres llistes de l'estat no?
-
     } catch(e) {
       console.debug(e);
-      //TODO show toast??
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true } });
+      if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
   thunk.interceptInOffline = true;
@@ -366,7 +392,7 @@ export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
   return thunk;
 };
 
-export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, images, currentAoiId ) => {
+export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, currentAoiId ) => {
 
   async function thunk(dispatch) {
     console.debug('obsCreateSaveLocal.............');
@@ -382,10 +408,13 @@ export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, c
     newObs.comment = comment;
     newObs.position = position;
     newObs.images = images;
+    newObs.compass = compass;
     newObs.toSync = true;//TODO revisar
 
 
     dispatch({ type: ADD_NEW_OBS, payload: {newObs, currentAoiId} });
+    dispatch({ type: ADD_OBS_AOI, payload: newObs });
+
     dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: SET_SAVING_STATUS, payload: false });
     // dispatch({ type: OBS_SAVE_SUCCESS, payload: {} });
@@ -394,9 +423,11 @@ export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, c
   return thunk;
 };
 
-export const deleteObsServer = ( currentObs, currentAoiId, token ) => {
+export const deleteObsServer = ( deleted_obsKey, name, currentAoiId, currentGzId, token, fromListDataScreen ) => {
+
   async function thunk(dispatch) {
     console.debug('*********deleteObsServer');
+    if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: true });
 
     try {
       const instance = axios.create({
@@ -405,13 +436,30 @@ export const deleteObsServer = ( currentObs, currentAoiId, token ) => {
           'Content-Type':'application/json'
         }
       });
-
-      let response = await instance.delete(`${URL_UPDATE_OBS}${currentObs.key}/`);
+      const obsKey = deleted_obsKey.replace('deleted_', '');
+      let response = await instance.delete(`${URL_UPDATE_OBS}${obsKey}/`);
       console.debug('response', response);
-      if (response.status !== 200 ){
-        console.debug('No esborrada be! Afegim localment un altre cop!!!');
-        dispatch({ type: ADD_NEW_OBS, payload: {currentObs, currentAoiId} });
-        //TODO tb cal actualitzar el mapa i tornar afegir la obs
+
+      if (response.status === 200 ){
+        dispatch({
+          type: OBS_DELETE,
+          payload: { key: deleted_obsKey, currentAoiId, currentGzId, currentGzId}
+        });
+        if ( fromListDataScreen ) {
+          dispatch({ type: SET_SYNC_STATUS, payload: false });
+        } else {
+          const style = {
+            backgroundColor: '#dd8BC34A',
+            color: '#ffffff',
+            fontSize: 15,
+            borderWidth: 5,
+            borderRadius: 80,
+            fontWeight: 'bold',
+            yOffset: 40
+          }
+          const message = `"${name}" ${strings.obshasbeendeleted}`;
+          Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
+        }
       };
       dispatch({ type: CHECK_STATE, payload: {} });
       //TODO show toast message
@@ -420,8 +468,8 @@ export const deleteObsServer = ( currentObs, currentAoiId, token ) => {
     } catch(e) {
       console.debug(e);
       //TODO show toast??
-      console.debug('No esborrada be! Afegim localment un altre cop!!!');
-      dispatch({ type: ADD_NEW_OBS, payload: {currentObs, currentAoiId} });
+      console.debug('No esborrada be! ');
+      if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
   thunk.interceptInOffline = true;
@@ -434,9 +482,14 @@ export const deleteObsServer = ( currentObs, currentAoiId, token ) => {
 
 export const deleteObsLocal = ( obsKey, currentAoiId ) => {
 
+  async function thunk(dispatch) {
+  dispatch({ type: SET_SAVING_STATUS, payload: true });
   console.debug('deleteObsLocal.............');
-  return {
-    type: OBS_DELETE,
+  dispatch({
+    type: OBS_DELETE_LOCAL,
     payload: { key: obsKey, currentAoiId}
+  });
+  dispatch({ type: SET_SAVING_STATUS, payload: false });
   };
+  return thunk;
 };

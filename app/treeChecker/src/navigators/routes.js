@@ -43,6 +43,7 @@ const MapFlow = TabNavigator({
 	swipeEnabled: false,
 	tabBarVisible: true,
 	tabBarPosition: 'top',
+	//lazy: true,
 	tabBarOptions: {
 		indicatorStyle: {
 			backgroundColor: '#b2ff59'
