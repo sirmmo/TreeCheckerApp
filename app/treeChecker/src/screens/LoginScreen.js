@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { FormLabel, FormInput, FormValidationMessage, Button, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { ConnectivityRenderer } from 'react-native-offline';
@@ -35,12 +35,11 @@ class LoginScreen extends Component {
 
   renderButton() {
     if (this.props.loading) {
-      return <MySpinner size="large" />;
+      return <MySpinner size="large" mystyle={styles.ContButtonStyle} />;
     }
 
     return (
       <Button
-        raised
         containerViewStyle={styles.ContButtonStyle}
         backgroundColor='#8BC34A'
         title={strings.login}
@@ -51,8 +50,10 @@ class LoginScreen extends Component {
   }
 
   render() {
+    const src = require('./resources/img/tree3.jpg');
     return (
-      <View style={styles.container}>
+      <Image source={src} style={styles.container}>
+      <View style={styles.containerForm}>
         <FormLabel labelStyle={styles.labelStyle}>{strings.Username}</FormLabel>
         <FormInput
           placeholder={strings.username}
@@ -74,19 +75,26 @@ class LoginScreen extends Component {
               this.renderButton()
             ) : (
               <CardSection>
-                <Icon name='warning' />
-                <Text style={styles.errorTextStyle}>Network connection needed</Text>
+                <Icon name='warning' color='#757575' size={32} containerStyle={{ marginRight: 8 }}/>
+                <Text style={styles.labelName}>{strings.connectionNeeded}</Text>
               </CardSection>
             )
           )}
         </ConnectivityRenderer>
       </View>
+      </Image>
     );
   }
 }
 
 const styles = {
   container: {
+    flex: 1,
+    width: null,
+    height: null,
+    justifyContent: 'center',
+  },
+  containerForm: {
       backgroundColor: '#ffffff',
       justifyContent: 'center',
       borderWidth: 1,
@@ -103,11 +111,23 @@ const styles = {
       marginTop: 10,
       marginBottom: 10,
   },
+  containerWarning: {
+    flex: 1,
+    flexDirection: 'column',
+
+  },
+  warning: {
+    flexDirection: 'row'
+  },
+  labelName: {
+    fontSize: 18,
+    color: '#D32F2F'
+  },
   errorTextStyle: {
     marginTop: 5,
     fontSize: 16,
     alignSelf: 'center',
-    color: 'red'
+    color: '#D32F2F'
   },
   labelStyle: {
     fontSize: 20

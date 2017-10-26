@@ -17,10 +17,12 @@ import {
   CLEAR_FETCHED_IMAGES,
   ADD_NEW_OBS,
   OBS_DELETE,
+  OBS_DELETE_LOCAL,
   UPDATE_INDEX_OBS,
   AOI_MODAL_VISIBLE,
   AOI_DELETE,
-  UPDATE_OBS_ALLAOI
+  UPDATE_OBS_ALLAOI,
+  ADD_NEW_AOI
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -87,7 +89,6 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, isDownloading: action.payload};
 
     case UPDATE_INDEX_OBS: {
-
     const { newKey, oldKey, aoiId } = action.payload;
     const obs = { ...state.allAoisList[state.currentGzId][aoiId].obs[oldKey] }
     obs.key = newKey;
@@ -104,12 +105,48 @@ export default (state = INITIAL_STATE, action) => {
                   }
                 }
               }
+            },
+            currentAoiList: {
+              ...state.currentAoiList,
+              [aoiId]: {
+                ...state.currentAoiList[aoiId],
+                obs: {
+                  ...state.currentAoiList[aoiId].obs,
+                  [newKey]: obs
+                }
+              }
             }
           };
     }
     case OBS_DELETE: {
+          const { key, currentAoiId, currentGzId } = action.payload;
+          const newObs = { ...state.allAoisList[currentGzId][currentAoiId].obs };
+          delete newObs[key];
+          return { ...state,
+                  allAoisList: {
+                    ...state.allAoisList,
+                    [currentGzId]: {
+                      ...state.allAoisList[currentGzId],
+                      [currentAoiId]: {
+                        ...state.allAoisList[currentGzId][currentAoiId],
+                        obs: newObs
+                      }
+                    }
+                  },
+                  currentAoiList: {
+                    ...state.currentAoiList,
+                    [currentAoiId]: {
+                      ...state.currentAoiList[currentAoiId],
+                      obs: newObs
+                    }
+                  }
+                };
+    }
+    case OBS_DELETE_LOCAL: {
           const { key, currentAoiId } = action.payload;
           const newObs = { ...state.allAoisList[state.currentGzId][currentAoiId].obs };
+          const deletedObs = { ...newObs[key], key: `deleted_${key}`, toSync: true };
+
           delete newObs[key];
           return { ...state,
                   allAoisList: {
@@ -118,7 +155,20 @@ export default (state = INITIAL_STATE, action) => {
                       ...state.allAoisList[state.currentGzId],
                       [currentAoiId]: {
                         ...state.allAoisList[state.currentGzId][currentAoiId],
-                        obs: newObs
+                        obs: {
+                          ...newObs,
+                          [`deleted_${key}`]: deletedObs
+                        }
+                      }
+                    }
+                  },
+                  currentAoiList: {
+                    ...state.currentAoiList,
+                    [currentAoiId]: {
+                      ...state.currentAoiList[currentAoiId],
+                      obs: {
+                        ...newObs,
+                        [`deleted_${key}`]: deletedObs
                       }
                     }
                   }
@@ -146,10 +196,35 @@ export default (state = INITIAL_STATE, action) => {
                         }
                       }
                     }
+                  },
+                  currentAoiList: {
+                    ...state.currentAoiList,
+                    [currentAoiId]: {
+                      ...state.currentAoiList[currentAoiId],
+                      obs: {
+                        ...state.currentAoiList[currentAoiId].obs,
+                        [newObs.key]: newObs
+                      }
+                    }
                   }
                 };
     }
-
+    case ADD_NEW_AOI: {
+          const { aoi } = action.payload;
+          return { ...state,
+                  allAoisList: {
+                    ...state.allAoisList,
+                    [state.currentGzId]: {
+                      ...state.allAoisList[state.currentGzId],
+                      [aoi.key]: aoi
+                    }
+                  },
+                  currentAoiList: {
+                    ...state.currentAoiList,
+                    [aoi.key]: aoi
+                  }
+                };
+    }
     case UPDATE_OBS_ALLAOI: {
           const { updatedObs, currentAoiId } = action.payload;
 

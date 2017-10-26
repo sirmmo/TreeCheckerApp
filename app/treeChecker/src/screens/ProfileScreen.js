@@ -87,7 +87,7 @@ class ProfileScreen extends Component {
         </Card>
         <Button
           iconRight
-          icon={{name: 'arrow-back'}}
+          icon={{name: 'exit-to-app', font: 'material-community'}}
           backgroundColor='#8BC34A'
           buttonStyle={{borderRadius: 0, marginTop: 10}}
           onPress={this.doLogout.bind(this)}
@@ -100,7 +100,8 @@ class ProfileScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20
+    justifyContent: 'center',
+    backgroundColor: '#C8E6C9'
   },
   subtitleStyle: {
     fontSize: 16

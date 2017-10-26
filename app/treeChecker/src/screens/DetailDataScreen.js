@@ -7,21 +7,22 @@ import {
   Text,
   StyleSheet,
   Image,
-  FlatList
+  ViewPagerAndroid
 } from 'react-native';
 import { connect } from 'react-redux';
-import { Button, Grid, Col, Row } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 // import LocalizedStrings from 'react-native-localization';
 import RNFS from 'react-native-fs';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
+import { NavigationActions } from 'react-navigation';
 
-import { Card, CardSection } from '../components/common';
+import { CardSection } from '../components/common';
 import { strings } from './strings.js';
 import { deleteObsLocal, deleteObsServer } from '../actions';
 
 class DetailDataScreen extends Component {
 
-  state = { showDeleteModal: false, item: {} };
+  state = { showDeleteModal: false, item: {}, currentSlide: 0 };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
     title: 'Detail Data Observation',
@@ -33,70 +34,48 @@ class DetailDataScreen extends Component {
     this.props.navigation.navigate('editdata');
   }
 
-  onPressDeleteObs (){
-    const { currentObs, currentAoiId, token } = this.props;
+  async onPressDeleteObs() {
+    const { currentObs, currentAoiId, token, currentGzId } = this.props;
     this.setState({ showDeleteModal: false })
-    this.props.deleteObsLocal(currentObs.key, currentAoiId);
-    this.props.deleteObsServer(currentObs, currentAoiId, token);
-    this.props.navigation.navigate('listdata');
-    //TODO delete quan has tancat sessio queeee?
+    await this.props.deleteObsLocal(currentObs.key, currentAoiId);
+    this.props.deleteObsServer(`deleted_${currentObs.key}`, currentObs.name, currentGzId, currentAoiId, token, false);
+    //this.props.navigation.navigate('listdata');
+
+    const backAction = NavigationActions.back({
+      key: 'listdata'
+    })
+    this.props.navigation.dispatch(backAction);
+    this.props.navigation.goBack(null);
   }
 
   renderButtons(currentObs) {
     return (
       <View style={styles.rowButtons}>
             <Button
-              raised
               iconRight
-              backgroundColor='#b71c1c'
+              buttonStyle={{ borderColor: '#D32F2F', borderWidth: 1 }}
+              backgroundColor='#ffffff'
+              color='#D32F2F'
               onPress={() => this.setState({ showDeleteModal: !this.state.showDeleteModal })}
-              icon={{ name: 'trash', type: 'font-awesome' }}
+              icon={{ name: 'trash', type: 'font-awesome', color: '#D32F2F' }}
               title={strings.delete} />
 
               <Button
-                raised
                 iconRight
-                backgroundColor='#8BC34A'
+                buttonStyle={{ borderColor: '#8BC34A', borderWidth: 1 }}
+                backgroundColor='#ffffff'
+                color='#8BC34A'
                 onPress={this.onPressEdit.bind(this)}
-                icon={{ name: 'edit' }}
+                icon={{ name: 'edit', color: '#8BC34A' }}
                 title={strings.edit} />
 
             <Button
-              raised
               iconRight
               backgroundColor='#8BC34A'
-              onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: this.props.currentObs.position.latitude, longitude: this.props.currentObs.position.longitude })}
+              onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: currentObs.position.latitude, longitude: currentObs.position.longitude })}
               icon={{ name: 'map', type: 'font-awesome' }}
               title={strings.goto} />
       </View>
-    );
-  }
-
-  _renderImageItem = ({ item }) => {
-
-    const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
-    return (
-      <Image style={{marginRight: 5, width: 200, height: 200 }} source={{uri: img_uri }} />
-    );
-  }
-
-  renderImages(images) {
-    if(images.length === 0){
-      return (
-        <CardSection>
-          <Image style={{marginRight: 5, width: 200, height: 200 }} source={require('./resources/img/noimage.jpg')} />
-        </CardSection>
-      );
-    }
-    return (
-      <CardSection>
-        <FlatList
-          data={images}
-          horizontal
-          keyExtractor={(item, index) => item.key}
-          renderItem={this._renderImageItem}
-        />
-      </CardSection>
     );
   }
 
@@ -104,7 +83,6 @@ class DetailDataScreen extends Component {
     if (comment !== null && comment !== '') {
       return (
         <CardSection>
-          <Text style={styles.labelName}>{strings.comment}</Text>
           <Text style={styles.valueName}>{comment}</Text>
         </CardSection>
       );
@@ -114,7 +92,6 @@ class DetailDataScreen extends Component {
   renderData(currentObs) {
     return (
         <ScrollView>
-        {this.renderImages(currentObs.images)}
           <CardSection>
             <Text style={styles.labelName}>{strings.treeSpecies}</Text>
             <Text style={styles.valueName}>{currentObs.tree_specie.name}</Text>
@@ -133,22 +110,79 @@ class DetailDataScreen extends Component {
     );
   }
 
+  renderImg(img) {
+    const imgUri = (img.uri ? img.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${img.url}` );
+    return (
+      <View
+        keyExtractor={(viewimg) => viewimg.key}
+        style={styles.imgContStyle}
+      >
+        <Image style={styles.imgStyle} source={{ uri: imgUri }} />
+      </View>
+    );
+  }
+
+  renderImages() {
+    const { images } = this.props.currentObs;
+
+    if (images.length === 0) {
+      return (
+        <View style={styles.imgContStyle}>
+          <Image style={styles.imgStyle} source={require('./resources/img/noimage4.png')} />
+        </View>
+      );
+    }
+
+		return images.map((img) =>
+			this.renderImg(img)
+		);
+	}
+
+  updatePagination(e) {
+		if (e.nativeEvent.position === (this.props.currentObs.images.length - 1)) this.setState({ currentSlide: e.nativeEvent.position });
+		else this.setState({ currentSlide: e.nativeEvent.position });
+	}
+
+  renderPagination() {
+		const pages = [];
+		const size = this.props.currentObs.images.length;
+
+		for (let i = 0; i < size; i++) {
+			if (i === this.state.currentSlide) {
+				pages.push(<View style={{ backgroundColor: '#ffffff', borderRadius: 10, width: 10, height: 10, marginRight: 1, marginLeft: 1 }} />);
+			} else {
+				pages.push(<View style={{ backgroundColor: '#8BC34A', borderRadius: 10, width: 10, height: 10, marginRight: 1, marginLeft: 1 }} />);
+			}
+		}
+
+		return (
+			<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 2, marginTop: 2 }}>
+				{pages}
+			</View>
+		);
+	}
+
   render() {
-    // console.debug('this.props', this.props);
+    console.debug('this.props', this.props);
     const { currentObs } = this.props;
     // console.debug('currentObs', currentObs);
-
     return (
       <View style={styles.container}>
+        <View style={styles.containerTop}>
+          <ViewPagerAndroid
+            initialPage={0}
+            style={styles.ContPager}
+            onPageSelected={this.updatePagination.bind(this)}
+          >
+            {this.renderImages()}
+          </ViewPagerAndroid>
+          {this.renderPagination()}
 
-        <View style={styles.containerData}>
-          <CardSection style={styles.detailHeader}>
-            <Text style={styles.labelHeader}>{currentObs.name}</Text>
-          </CardSection>
-          {this.renderData(currentObs)}
+          <Text style={styles.labelHeader}>{currentObs.name}</Text>
         </View>
 
-        <View style={styles.containerButtons}>
+        <View style={styles.containerBottom}>
+          {this.renderData(currentObs)}
           {this.renderButtons(currentObs)}
         </View>
 
@@ -174,60 +208,83 @@ class DetailDataScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingLeft: 5,
-    paddingRight: 5,
-    alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-  },
-  containerData: {
-    width: '100%',
-    flex: 5,
-  },
-  containerButtons: {
-    paddingTop: 15,
-    flex: 1,
     justifyContent: 'center',
-    flexDirection: 'row'
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
   },
-
-  detailHeader: {
+  containerTop: {
+    flex: 1,
+    width: '100%',
+    paddingTop: 5,
+    paddingBottom: 10,
+    backgroundColor: '#4CAF50',
+    borderBottomRightRadius: 75,
+    borderBottomLeftRadius: 75,
+    borderWidth: 1,
+    borderColor: '#8BC34A'
+  },
+  containerBottom: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#ffffff',
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  ContPager: {
+		flex: 1,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+  imgContStyle: {
+		padding: 5,
+    alignItems: 'center',
+	},
+  imgStyle: {
+    width: '80%',
+    flex: 1,
     borderWidth: 2,
     borderColor: '#ffffff',
-    backgroundColor: '#4CAF50',
+    // shadowColor: '#757575',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 2,
+    // elevation: 1,
   },
   labelHeader: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 22,
-    color: '#ffffff'
+    color: '#ffffff',
+    padding: 2
   },
-
   rowButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     marginBottom: 10,
-    marginTop:20
+    marginTop: 10
   },
   labelName: {
     flex: 2,
     fontWeight: 'bold',
-    fontSize: 18
+    fontSize: 18,
+    textAlign: 'justify',
   },
   valueName: {
     flex: 2,
-    fontSize: 18
+    fontSize: 18,
+    textAlign: 'justify',
   }
 });
 
 
-const mapStateToProps = ({ mapData, auth }) => {
+const mapStateToProps = ({ mapData, auth, geoZonesData }) => {
   const { token } = auth;
   const { currentObs, currentAoiId } = mapData;
-  return { currentObs, currentAoiId, token };
+  const { currentGzId } = geoZonesData;
+  return { currentObs, currentAoiId, token, currentGzId };
 };
 
 const myDetailDataScreen = connect(mapStateToProps, {

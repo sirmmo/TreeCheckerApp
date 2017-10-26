@@ -7,6 +7,7 @@ export const strings = new LocalizedStrings({
    Username: 'Username',
    password: 'password',
    Password: 'Password',
+   connectionNeeded: 'Network connection needed',
 
    walk01: 'First of all choose your region of interest, among the available options.',
    walk02: '',
@@ -17,18 +18,22 @@ export const strings = new LocalizedStrings({
 
    selectAOItitle: 'Select your area of interest:',
    deleteAOI: 'Delete AOI',
+   uploadAOIerror: 'Problem uploading to the server. The AOI may not have been created correctly',
    funcWithConnection: 'Functionality only available with connection',
 
    myObservations: 'MY OBSERVATIONS',
    itemAlreadySync: 'Observation already up to date',
+   obshasbeensync: 'has been synchronized with the server',
+   obshasbeendeleted: 'has been deleted from the server',
 
 
    progressDialog: 'Progress Dialog',
    syncMessage: 'Synchronizing, please wait ...',
-   noObsMessage: 'No observations available yet',
-   infoAddMessage: 'Long-click on the map to add',
+   infoAddMessage: 'Long-click on the map to add a new observation',
    selAOI: 'Select your area of interest:',
-   nameAOI: 'Please, name your area of interest and press the download button',
+   selNewAOI: '1. Select your new area of interest:',
+   nameAOI: '2. Please, name your area of interest and press the download button',
+   createAOI2: 'Create AOI (2/2)',
    aoiNameInput: 'AOI name',
    close: 'Close',
    download: 'Download',
