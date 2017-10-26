@@ -186,6 +186,15 @@ class SurveyDataWriteSerializer(serializers.ModelSerializer):
 		instance.longitude = validated_data.get('longitude', instance.longitude)
 		instance.latitude = validated_data.get('latitude', instance.latitude)
 		instance.compass = validated_data.get('compass', instance.compass)
+
+		inputImages = self.context.get('imagesToKeep')
+		if inputImages:
+		
+			currentImages = Photo.objects.filter(survey_data_id=instance.id).values_list('id', flat=True)
+
+			imagesToDelete = set(currentImages) - set(inputImages)
+			Photo.objects.filter(id__in=imagesToDelete).filter(survey_data_id=instance.id).delete()
+			
 		instance.save()
 		return instance
 
