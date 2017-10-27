@@ -21,7 +21,7 @@ export const SLIDE_DATA = [
   },
   {
     pageID: 2, title: 'Create area of interest 1/2',
-    text: 'Drag the vertexs of the polygon to cover the area you are interested in. Once the process will be finished, all the area will be available in offline mode.',
+    text: 'Drag the vertices of the polygon to cover the area you are interested in. Once the process will be finished, all the area will be available in offline mode.',
     imgFile: require('./resources/img/createAOI2.png')
   },
   {
@@ -48,12 +48,12 @@ export const SLIDE_DATA = [
   pageID: 7, title: 'Edit Data',
   text: 'And finally, you can edit the information of the observations.',
   imgFile: require('./resources/img/editSD2.png')
-	},
-	{
-	pageID: 8, title: 'Menu',
-	text: 'By pressing the menu button (top right header of the main screens), you can access to your user profile or to this tutorial again.',
+  },
+  {
+  pageID: 8, title: 'Menu',
 	imgFile: require('./resources/img/menu2.png')
-	}
+  }
+  text: 'By pressing the menu button (top right header of the main screens), you can access to your user profile to view this tutorial again.',
 ];
 
 class WalkthroughScreen extends Component {
