@@ -59,7 +59,8 @@ class MapScreen extends Component {
           latitude: json.latitude,
           longitude: json.longitude
         };
-        this.props.obsCreate(pos);
+        //console.debug('this.props.currentAoi.obs.length', this.props.currentAoi.obs.length);
+        this.props.obsCreate(pos, Object.keys(this.props.currentAoi.obs).length+1);
         this.props.navigation.navigate('createdata');
         return;
 

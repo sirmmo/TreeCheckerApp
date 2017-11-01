@@ -29,7 +29,7 @@ export default (state = INITIAL_STATE, action) => {
       return INITIAL_STATE;
 
     case OBS_CREATE:
-      return { ...state, ...INITIAL_STATE, position: action.payload, name: 'Tree XX', tree_specie: 1, crown_diameter: 1, canopy_status: 1 };
+      return { ...state, ...INITIAL_STATE, position: action.payload.pos, name: `Tree ${action.payload.numObs}`, tree_specie: 1, crown_diameter: 1, canopy_status: 1 };
 
     case OBS_SAVE_SUCCESS:
       return INITIAL_STATE;

@@ -170,7 +170,7 @@ class EditDataScreen extends Component {
     console.debug('rendermap');
     return (
       <View style={styles.containerMap}>
-        <CardSection style={{backgroundColor: '#C8E6C9'}}>
+        <CardSection style={{backgroundColor: '#8BC34A'}}>
         <Text>{strings.moveMap}</Text>
         </CardSection>
         <WebView

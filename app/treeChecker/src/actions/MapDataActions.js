@@ -92,10 +92,10 @@ export const obsResetForm = () => {
   };
 };
 
-export const obsCreate = (pos) => {
+export const obsCreate = (pos, numObs) => {
   return {
     type: OBS_CREATE,
-    payload: pos
+    payload: {pos, numObs}
   };
 };
 

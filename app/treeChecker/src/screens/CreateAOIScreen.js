@@ -131,6 +131,7 @@ class CreateAOIScreen extends Component {
               <Text style={styles.headerText2}>{strings.nameAOI}</Text>
               <FormLabel labelStyle={styles.labelName2}>{strings.name}</FormLabel>
               <FormInput
+                underlineColorAndroid='#8BC34A'
                 placeholder={strings.aoiNameInput}
                 onChangeText={(text) => {this.setState({aoiName: text})}}
                 disabled={!this.state.isDownloading}
@@ -163,6 +164,7 @@ class CreateAOIScreen extends Component {
 
             <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
             <FormInput
+              underlineColorAndroid='#8BC34A'
               placeholder={strings.aoiNameInput}
               onChangeText={(text) => {this.setState({aoiName: text})}}
               disabled={!this.state.isDownloading}

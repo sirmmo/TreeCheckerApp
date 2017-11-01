@@ -114,7 +114,7 @@ class DetailDataScreen extends Component {
     const imgUri = (img.uri ? img.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${img.url}` );
     return (
       <View
-        keyExtractor={(viewimg) => viewimg.key}
+        keyExtractor={(img) => img.key}
         style={styles.imgContStyle}
       >
         <Image style={styles.imgStyle} source={{ uri: imgUri }} />

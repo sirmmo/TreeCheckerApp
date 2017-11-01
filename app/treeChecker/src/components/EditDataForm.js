@@ -6,7 +6,8 @@ import {
   View,
   Text,
   Picker,
-  FlatList
+  FlatList,
+  TouchableOpacity
 } from 'react-native';
 import { connect } from 'react-redux';
 import { FormLabel, FormInput, Card as CardNative, Button, Icon } from 'react-native-elements';
@@ -14,6 +15,7 @@ import ImagePicker from 'react-native-image-picker';
 import RNSimpleCompass from 'react-native-simple-compass';
 import RNFS from 'react-native-fs';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
+import Autocomplete from 'react-native-autocomplete-input';
 
 import { CardSectionCol } from '../components/common';
 import { obsUpdate } from '../actions';
@@ -98,8 +100,8 @@ state = { showModal: false, item: {} };
             reverse
             size={20}
             color='#8BC34A'
-            name='plus-circle'
-            type='font-awesome'
+            name='add-a-photo'
+            type='material-icons'
             onPress={this.addPicture.bind(this)} />
         </View>
         <FlatList
@@ -130,16 +132,53 @@ state = { showModal: false, item: {} };
     );
   }
 
+
+  findTreeSpecie(treeSpecie) {
+    if (treeSpecie === '') {
+      return [];
+    }
+
+    const { treeSpeciesList } = this.props.treeSpeciesList;
+    const regex = new RegExp(`${treeSpecie.trim()}`, 'i');
+    return treeSpeciesList.filter(tree => tree.search(regex) >= 0);
+  }
+
   renderForm() {
+
+    const { tree } = this.props.tree_specie;
+    const trees = this.findTreeSpecie(tree);
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+
     return(
       <View style={{width: '100%'}}>
 
             <CardSectionCol style={{flex: 1}}>
               <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
               <FormInput
+                underlineColorAndroid='#8BC34A'
                 value={this.props.name}
                 onChangeText={value => this.props.obsUpdate({ prop: 'name', value })}
               />
+            </CardSectionCol>
+
+            <CardSectionCol style={{ flex: 1 }}>
+                <Text style={styles.labelName}>{strings.crown}</Text>
+                <View style={styles.autocompleteContainer}>
+                  <Autocomplete
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    containerStyle={styles.autocompleteContainer}
+                    data={trees.length === 1 && comp(tree, trees[0].name) ? [] : trees}
+                    onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
+                    renderItem={({ name }) => (
+                     <TouchableOpacity onPress={() => this.props.obsUpdate({ prop: 'tree_specie', name })}>
+                       <Text style={styles.labelName}>
+                         {name}
+                       </Text>
+                     </TouchableOpacity>
+                   )}
+                  />
+                </View>
             </CardSectionCol>
 
             <View style={{ flexDirection: 'row', paddingRight: 10, paddingLeft: 25 }}>
@@ -158,6 +197,9 @@ state = { showModal: false, item: {} };
               <FormLabel labelStyle={styles.labelName} >{strings.comment}</FormLabel>
               <FormInput
                 multiline
+                underlineColorAndroid='#8BC34A'
+                returnKeyLabel='done'
+                autogrow
                 value={this.props.comment}
                 onChangeText={value => this.props.obsUpdate({ prop: 'comment', value })}
               />
@@ -231,6 +273,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 25
+  },
+  autocompleteContainer: {
+    flex: 1,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 1
   }
 });
 
