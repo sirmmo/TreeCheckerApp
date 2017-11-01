@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "build-web": "webpack --progress"
+    "build-web": "webpack --progress && xcopy \"./src/screens/resources/web\" \"./android/app/src/main/assets/web\" /E /I /Y"
   },
   "dependencies": {
     "axios": "^0.16.2",

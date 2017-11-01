@@ -174,7 +174,7 @@ class EditDataScreen extends Component {
         <Text>{strings.moveMap}</Text>
         </CardSection>
         <WebView
-          source={require('./resources/web/centerPin.html')}
+          source={{ uri: 'file:///android_asset/web/centerPin.html' }}
           ref={ (webview) => { this.setWebView(webview); } }
           style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
         />

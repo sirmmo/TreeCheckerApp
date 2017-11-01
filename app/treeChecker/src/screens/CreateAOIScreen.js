@@ -112,7 +112,7 @@ class CreateAOIScreen extends Component {
 			<View style={styles.containerMap}>
         <Text style={styles.headerText}>{strings.selNewAOI}</Text>
 				<WebView
-					source={require('./resources/web/createAOI.html')}
+					source={{ uri: 'file:///android_asset/web/createAOI.html' }}
 					ref={ (webview) => { this.setWebView(webview); } }
 					style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
 				/>
