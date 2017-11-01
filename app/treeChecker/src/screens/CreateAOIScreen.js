@@ -115,7 +115,7 @@ class CreateAOIScreen extends Component {
         </CardSection>
 
 				<WebView
-					source={require('./resources/web/createAOI.html')}
+					source={{ uri: 'file:///android_asset/web/createAOI.html' }}
 					ref={ (webview) => { this.setWebView(webview); } }
 					style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
 				/>

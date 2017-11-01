@@ -120,7 +120,7 @@ class MapScreen extends Component {
     return (
       <View style={styles.container}>
         <WebView
-          source={require('./resources/web/baseMap.html')}
+          source={{ uri: 'file:///android_asset/web/baseMap.html' }}
           ref={this._refWebView}
           style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
         />
