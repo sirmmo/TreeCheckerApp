@@ -51,9 +51,9 @@ export const SLIDE_DATA = [
   },
   {
   pageID: 8, title: 'Menu',
-	imgFile: require('./resources/img/menu2.png')
+	imgFile: require('./resources/img/menu2.png'),
+  text: 'By pressing the menu button (top right header of the main screens), you can access to your user profile to view this tutorial again.'
   }
-  text: 'By pressing the menu button (top right header of the main screens), you can access to your user profile to view this tutorial again.',
 ];
 
 class WalkthroughScreen extends Component {
