@@ -8,7 +8,7 @@ import {
   Text
 } from 'react-native';
 import { connect } from 'react-redux';
-import { Grid, Col, Row, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { WebView } from 'react-native-webview-messaging/WebView';
 import RNFS from 'react-native-fs';
 import StaticServer from 'react-native-static-server';
@@ -39,58 +39,41 @@ class EditDataScreen extends Component {
   }
 
   componentDidMount() {
-
     this.isInitialized = false;
     this.subscribeMessages();
     this.initServer();
-
   }
 
   receiveServerData(json) {
-
-    if(json.webInit) {
-
+    if (json.webInit) {
       this.sendInitParams();
       this.isInitialized = true;
-
-    } else if(this.isInitialized) {
-
+    } else if (this.isInitialized) {
       this.props.obsUpdate({ prop: 'position', value: { latitude: json.center.lat, longitude: json.center.lng } });
-
     }
-
   }
 
   sendInitParams() {
-
     const {position} = this.props;
-
     this.webview.sendJSON({ pos: position });
-    console.log("--------- Send init params: " + JSON.stringify(position));
-
+    // console.log("--------- Send init params: " + JSON.stringify(position));
   }
 
   setWebView(webview) {
-
     this.webview = webview;
-
   }
 
   subscribeMessages() {
-
     const { messagesChannel } = this.webview;
     messagesChannel.on('json', (json) => this.receiveServerData(json) );
-
   }
 
   initServer() {
     const myserver = new StaticServer(8080, RNFS.ExternalDirectoryPath);
     // Start the server
     myserver.start().then((url) => {
-
       console.debug('Serving at URL' + url);
       this.webview.sendJSON({ urlOffline: url });
-
     });
   }
 
@@ -147,7 +130,8 @@ class EditDataScreen extends Component {
       this.props.images,
       this.props.currentObs.compass,
 
-      this.props.token
+      this.props.token,
+      false
     );
     // this.props.navigation.goBack('detaildata');
     this.goBackDetailData();
@@ -155,25 +139,24 @@ class EditDataScreen extends Component {
   }
 
   renderButtons() {
-    console.debug('this.props.navigation', this.props.navigation);
-    const { goBack } = this.props.navigation;
-    const size = 100;
     if (this.props.isSaving) {
-      return(
-        <MySpinner type='ThreeBounce' color='#FFFFFF' />
+      return (
+        <MySpinner size="large" mystyle={{ paddingBottom: 20 }} />
       );
     }
 
     return (
       <View style={styles.rowButtons}>
         <Button
-          raised
           iconRight
+          buttonStyle={{ borderColor: '#8BC34A', borderWidth: 1 }}
+          backgroundColor='#ffffff'
+          color='#8BC34A'
           onPress={this.goBackDetailData.bind(this)}
-          icon={{ name: 'close', type: 'font-awesome' }}
+          icon={{ name: 'close', type: 'font-awesome', color: '#8BC34A' }}
           title={strings.cancel} />
+
         <Button
-          raised
           iconRight
           backgroundColor='#8BC34A'
           onPress={this.sendUpdateSave.bind(this)}
@@ -202,17 +185,15 @@ class EditDataScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header headerText={strings.editData} icon='edit' />
+        <Header headerText={strings.editData} icon='edit' mystyle={{ borderBottomLeftRadius:40, borderBottomRightRadius: 40, paddingBottom: 20 }}/>
         <View style={styles.containerForm}>
           <EditDataForm />
         </View>
 
         {this.renderMap()}
 
+        {this.renderButtons()}
 
-        <View style={styles.containerButtons}>
-          {this.renderButtons()}
-        </View>
       </View>
     );
   }
@@ -223,7 +204,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
+    backgroundColor: '#ffffff'
   },
   containerButtons: {
     paddingTop: 15,
@@ -236,11 +218,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    marginBottom: 10
+    marginBottom: 10,
+    marginTop: 10
   },
   containerMap: {
     width: '100%',
-    margin: 5,
     borderWidth: 1,
     borderRadius: 0,
     borderColor: '#ddd',
@@ -254,9 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   containerForm: {
-
     flex: 4,
-    justifyContent: 'center'
   },
   spinner: {
     marginBottom: 50

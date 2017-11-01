@@ -4,12 +4,12 @@ import { Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 // Make a component
-const Header = (props) => {
+const Header = ({ icon, headerText, mystyle }) => {
   const { textStyle, viewStyle } = styles;
-  const { icon, headerText } = props;
+  //const { icon, headerText } = props;
 
   return (
-    <View style={viewStyle}>
+    <View style={[viewStyle, mystyle]}>
       <Text style={textStyle}>{headerText}</Text>
       <Icon name={icon} color='#ffffff'/>
     </View>
@@ -22,7 +22,7 @@ const styles = {
     alignItems: 'center',
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
-    height: 40,
+    height: 50,
     paddingTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

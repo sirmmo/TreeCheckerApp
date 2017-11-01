@@ -2,9 +2,9 @@ import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import Spinner from 'react-native-spinkit';
 
-const MySpinner = ({ type, color }) => {
+const MySpinner = ({ type, color, mystyle }) => {
   return (
-    <View style={styles.spinnerStyle}>
+    <View style={[styles.spinnerStyle, mystyle]}>
       <Spinner name={type || 'wave'} color={color || '#8BC34A'}/>
     </View>
   );
@@ -13,7 +13,7 @@ const MySpinner = ({ type, color }) => {
 const styles = {
   spinnerStyle: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 30
   }

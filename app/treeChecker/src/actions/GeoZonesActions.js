@@ -1,6 +1,10 @@
+
 import { AsyncStorage } from 'react-native';
 import RNFS from 'react-native-fs';
 import axios from 'axios';
+import { NavigationActions } from 'react-navigation';
+import Toast from 'react-native-toast-native';
+import { strings } from '../screens/strings.js';
 import LayerDefinitions from '../common/layerDefinitions.js';
 import {
   GEOZONES_FETCH_SUCCESS,
@@ -21,7 +25,8 @@ import {
   CLEAR_FETCHED_IMAGES,
   AOI_MODAL_VISIBLE,
   RESET_STATE,
-  AOI_DELETE
+  AOI_DELETE,
+  ADD_NEW_AOI
 } from './types';
 
 import {
@@ -63,56 +68,60 @@ export const resetDownload = () => async dispatch => {
 
 };
 
-export const downloadTiles = ({ aoiName, bbox, zoomLevel, navigation, token, currentGzId }) => async dispatch => {
+export const downloadTiles = ({ aoiName, bbox, zoomLevel, navigation, token, currentGzId }) => {
 
-  var fetchQueue = getTileDownloadURLs(bbox, zoomLevel);
+  async function thunk(dispatch) {
 
-  dispatch({ type: UPDATE_TOTAL, payload: fetchQueue.length });
-  dispatch({ type: SET_DOWNLOAD_STATUS, payload: true });
+    var fetchQueue = getTileDownloadURLs(bbox, zoomLevel);
 
-  for(var i=0, len=fetchQueue.length; i<len; ++i) {
+    dispatch({ type: UPDATE_TOTAL, payload: fetchQueue.length });
+    dispatch({ type: SET_DOWNLOAD_STATUS, payload: true });
 
-    try {
-
-      var data = fetchQueue[i];
-      console.log("Fetch: " + data.url);
-      var url = data.url;
-      var dirPath = `${RNFS.ExternalDirectoryPath}/tiles/${data.layerName}/${data.z}/${data.x}/`;
-      var filePath = `${dirPath}${data.y}.png`;
-
-      var exists = await RNFS.exists(dirPath);
-      if(!exists) {
-
-        console.log("Creating dir: " + dirPath);
-        await RNFS.mkdir(dirPath)
-
-      }
+    for(var i=0, len=fetchQueue.length; i<len; ++i) {
 
       try {
 
-        await RNFS.downloadFile({fromUrl: url, toFile: filePath}).promise;
-        console.log(url + " stored in " + filePath);
-        dispatch({ type: UPDATE_PROGRESS });
+        var data = fetchQueue[i];
+        console.log("Fetch: " + data.url);
+        var url = data.url;
+        var dirPath = `${RNFS.ExternalDirectoryPath}/tiles/${data.layerName}/${data.z}/${data.x}/`;
+        var filePath = `${dirPath}${data.y}.png`;
 
-      } catch(error) {
+        var exists = await RNFS.exists(dirPath);
+        if(!exists) {
 
-        console.log(url + " KO1 " + error)
+          console.log("Creating dir: " + dirPath);
+          await RNFS.mkdir(dirPath)
 
+        }
+
+        try {
+
+          await RNFS.downloadFile({fromUrl: url, toFile: filePath}).promise;
+          console.log(url + " stored in " + filePath);
+          dispatch({ type: UPDATE_PROGRESS });
+
+        } catch(error) {
+
+          console.log(url + " KO1 " + error)
+          //TODO
+        }
+
+      } catch (error) {
+
+        console.log("--------- ERR: " + error);
+        //TODO
       }
-
-    } catch (error) {
-
-      console.log("--------- ERR: " + error);
 
     }
 
-  }
+    finishDownload(aoiName, bbox, navigation, token, currentGzId, dispatch);
+    dispatch({ type: SET_DOWNLOAD_STATUS, payload: false });
+    dispatch({ type: AOI_MODAL_VISIBLE, payload: false });
 
-  finishDownload(aoiName, bbox, navigation, token, currentGzId);
-  dispatch({ type: SET_DOWNLOAD_STATUS, payload: false });
-  dispatch({ type: AOI_MODAL_VISIBLE, payload: false });
-
-};
+  };
+  return thunk;
+}
 
 export const aoiListFetch = ({ token, currentGzId, allAoisList }) => {
   console.log("aoiListFetch");
@@ -231,30 +240,51 @@ export const geoZonesFetch = (token) => {
   };
 };
 
-async function uploadAOI(token, gzId, name, bbox) {
+async function uploadAOI(token, gzId, name, bbox, dispatch) {
 
   console.debug('---------------------------------------------------------------uploadAOI....');
+  //dispatch({ type: LOADING_DATA, payload: true });
+  try {
 
-  const instance = axios.create({
-    headers: {
-      'Authorization': `JWT ${token}`,
-      'Content-Type':'application/json'
+    const message = strings.uploadAOIerror;
+    const style = {
+      backgroundColor: '#dd8BC34A',
+      color: '#ffffff',
+      fontSize: 15,
+      borderWidth: 5,
+      borderRadius: 80,
+      fontWeight: 'bold'
     }
-  });
 
-  const url = `${URL_GZS}${gzId}${URL_AOI_SUFFIX}`;
-  let response = await instance.post(url, {
-    name: name,
-    x_min: bbox._southWest.lng,
-    y_min: bbox._southWest.lat,
-    x_max: bbox._northEast.lng,
-    y_max: bbox._northEast.lat,
-  });
+    const instance = axios.create({
+      headers: {
+        'Authorization': `JWT ${token}`,
+        'Content-Type':'application/json'
+      }
+    });
 
-  console.debug('---------------------------------------------------------------uploadAOI....');
+    const url = `${URL_GZS}${gzId}${URL_AOI_SUFFIX}`;
+    let response = await instance.post(url, {
+      name: name,
+      x_min: bbox._southWest.lng,
+      y_min: bbox._southWest.lat,
+      x_max: bbox._northEast.lng,
+      y_max: bbox._northEast.lat,
+    });
 
-  return response;
+    console.debug('---------------------------------------------------------------uploadAOI.... response:', response);
+    if( response.status === 200 ){
+      dispatch({ type: ADD_NEW_AOI, payload: {aoi: response.data} });
+    } else {
 
+      Toast.show(message, Toast.LONG, Toast.CENTER, style);
+    }
+
+
+  } catch(e) {
+    Toast.show(message, Toast.LONG, Toast.CENTER, style);
+
+  }
 }
 
 export const deleteAOI = ({token, key}) => {
@@ -375,9 +405,17 @@ const getTileDownloadURLs = (bbox, zoomLevel) => {
 
 };
 
-const finishDownload = (aoiName, bbox, navigation, token, gzId) => {
+async function finishDownload (aoiName, bbox, navigation, token, gzId, dispatch) {
 
-  uploadAOI(token, gzId, aoiName, bbox);
-  navigation.navigate('listaoi');
+  dispatch({ type: LOADING_DATA, payload: false });
+  await uploadAOI(token, gzId, aoiName, bbox, dispatch);
+
+  const backAction = NavigationActions.back({
+    key: 'listaoi'
+  })
+  navigation.dispatch(backAction);
+  navigation.goBack(null);
+  dispatch({ type: LOADING_DATA, payload: false });
+  //navigation.navigate('listaoi');
 
 }

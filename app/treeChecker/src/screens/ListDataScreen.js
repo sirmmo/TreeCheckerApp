@@ -10,9 +10,10 @@ import {
 import { Button, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Toast from 'react-native-toast-native';
 import { ProgressDialog } from 'react-native-simple-dialogs';
 import { strings } from './strings.js';
-import { refreshSelectedObs, obsUpdateSaveServer } from '../actions';
+import { refreshSelectedObs, obsUpdateSaveServer, obsCreateSaveServer, deleteObsServer } from '../actions';
 import { CardSection, MyListItem, Card } from '../components/common';
 
 class ListDataScreen extends Component {
@@ -33,23 +34,62 @@ class ListDataScreen extends Component {
   onPressSync(item) {
     console.debug('onPressFile item', item);
     console.debug('currentAoiId', this.props.currentAoi);
-    if (this.props.isConnected) {
-      this.props.obsUpdateSaveServer(
-        item.key,
-        this.props.currentAoi.key,
-        this.props.currentGzId,
-        item.name,
-        item.tree_specie,
-        item.crown_diameter,
-        item.canopy_status,
-        item.comment,
-        item.position,
-        item.images,
-        item.compass,
-        this.props.token
-      );
+
+    if (this.props.isConnected && item.toSync) {
+      const key = item.key.toString();
+      if (key.startsWith('new_')) {
+        this.props.obsCreateSaveServer(
+          item.key,
+          this.props.currentAoi.key,
+          this.props.currentGzId,
+          item.name,
+          item.tree_specie,
+          item.canopy_status,
+          item.crown_diameter,
+          item.comment,
+          item.position,
+          item.images,
+          item.compass,
+          this.props.token,
+          true
+        );
+      } else if (key.startsWith('deleted_')) {
+        this.props.deleteObsServer(
+          item.key,
+          item.name,
+          this.props.currentAoi.key,
+          this.props.currentGzId,
+          this.props.token,
+          true
+        );
+      } else {
+        this.props.obsUpdateSaveServer(
+          item.key,
+          this.props.currentAoi.key,
+          this.props.currentGzId,
+          item.name,
+          item.tree_specie,
+          item.crown_diameter,
+          item.canopy_status,
+          item.comment,
+          item.position,
+          item.images,
+          item.compass,
+          this.props.token,
+          true
+        );
+      }
     } else {
-      //TODO showToast connection needed
+      const message = (!item.toSync ? strings.itemAlreadySync : strings.funcWithConnection);
+      const style = {
+        backgroundColor: '#dd8BC34A',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 5,
+        borderRadius: 80,
+        fontWeight: 'bold'
+      }
+      Toast.show(message, Toast.LONG, Toast.CENTER, style);
     }
   }
 
@@ -61,28 +101,41 @@ class ListDataScreen extends Component {
 
   _renderItem({ item }) {
     console.debug('renderitem', item);
-    const enable = (item.toSync && item.toSync === true ? true : false);
+
+    let colorSync = '#c2c2c2';
+    //let colorText = '#141823';
+    let textStyle = styles.labelName;
+    let colActions = [];
+    colActions.push(<Icon name='file-text-o' type='font-awesome' onPress={this.onPressFile.bind(this, item)} />);
+    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: item.position.latitude, longitude: item.position.longitude }) }/> );
+
+    if (item.toSync && item.toSync === true) {
+      const key = item.key.toString();
+      if (key.startsWith('deleted_')) {
+        colorSync = '#D32F2F';
+        textStyle = styles.labelNameDeleted;
+        colActions = [];
+      } else {
+        colorSync = '#8BC34A';
+        textStyle = styles.labelNameToSync;
+      }
+    }
+
+    //const enable = (item.toSync && item.toSync === true ? true : false);
     return (
 
       <MyListItem keyExtractor={(item, index) => item.key}>
         <View style={styles.colName}>
-          <Text style={styles.labelName}> {item.name} </Text>
+          <Text style={textStyle}> {item.name} </Text>
         </View>
         <View style={styles.colActions}>
-          <Icon
-            name='file-text-o'
-            type='font-awesome'
-            onPress={this.onPressFile.bind(this, item)}
-          />
-          <Icon
-            name='map-marker' type='font-awesome'
-            onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: item.position.latitude, longitude: item.position.longitude })}
-          />
+        {colActions}
         </View>
         <View style={styles.colSync}>
           <Icon
             name='sync'
-            color={enable ? '#000' : '#c2c2c2'}
+            color={colorSync}
+            size= {28}
             onPress={this.onPressSync.bind(this, item)}
           />
         </View>
@@ -105,16 +158,11 @@ class ListDataScreen extends Component {
       return (
 
 
-        <View>
-          <CardSection>
-            <Icon name='warning' color='#757575' />
-            <Text style={styles.labelName}>{strings.noObsMessage}</Text>
-          </CardSection>
-
-          <CardSection>
-            <Icon name='info' color='#757575' />
+        <View style={styles.containerWarning}>
+          <View style={styles.warning}>
+            <Icon name='info' color='#757575' size={32} containerStyle={{ marginRight: 8 }} />
             <Text style={styles.labelName}>{strings.infoAddMessage}</Text>
-          </CardSection>
+          </View>
         </View>
 
       );
@@ -148,7 +196,32 @@ class ListDataScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15
+    paddingTop: 5,
+    backgroundColor: '#C8E6C9'
+  },
+  containerWarning: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  warning: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingRight: 20,
+    paddingLeft: 20,
+    width: '75%',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderRadius: 2,
+    borderColor: '#ddd',
+    borderBottomWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+    flexDirection: 'row'
   },
   row: {
     justifyContent: 'center'
@@ -156,17 +229,29 @@ const styles = StyleSheet.create({
   labelName: {
     fontSize: 18,
   },
+  labelNameDeleted: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#D32F2F',
+    textDecorationLine: 'line-through',
+    textDecorationStyle: 'solid'
+  },
+  labelNameToSync: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#8BC34A'
+  },
   flex2: { flex: 2 },
   flex1: { flex: 1 },
 
   headerText: {
     fontWeight: 'bold',
     fontSize: 18,
-    padding: 18,
-    textAlign: 'center'
+    padding: 15,
+    textAlign: 'center',
   },
   colName: { flex: 2 },
-  colSync: { flex: 1 },
+  colSync: { flex: 1, alignItems: 'flex-end', paddingRight: 2 },
   colActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-around' }
 });
 
@@ -180,7 +265,9 @@ const mapStateToProps = ({ auth, mapData, geoZonesData, network }) => {
 
 const myListDataScreen = connect(mapStateToProps, {
   refreshSelectedObs,
-  obsUpdateSaveServer
+  obsUpdateSaveServer,
+  obsCreateSaveServer,
+  deleteObsServer
 })(ListDataScreen);
 
 export { myListDataScreen as ListDataScreen };

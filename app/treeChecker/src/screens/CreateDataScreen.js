@@ -41,7 +41,7 @@ class CreateDataScreen extends Component {
     const crownItem = this.props.crownList[this.props.crown_diameter];
     const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
 
-    const newKey = Date.now();
+    const newKey = `new_${Date.now()}`;
 
     await this.props.obsCreateSaveLocal(
       // this.props.navigation,
@@ -54,11 +54,11 @@ class CreateDataScreen extends Component {
       this.props.comment,
       this.props.position,
       this.props.images,
+      this.props.compass,
       this.props.currentAoiId
     );
 
     this.props.obsCreateSaveServer(
-
       newKey, //this.props.currentObs.key, //this.props.currentObs,
       this.props.currentAoiId,
       this.props.currentGzId,
@@ -70,8 +70,8 @@ class CreateDataScreen extends Component {
       this.props.position,
       this.props.images,
       this.props.compass,
-
-      this.props.token
+      this.props.token,
+      false
     );
 
     // this.props.navigation.goBack('detaildata');
@@ -81,29 +81,40 @@ class CreateDataScreen extends Component {
 
   goBackListData() {
 
-    const backAction = NavigationActions.back({
+    const navigateAction = NavigationActions.back({
       key: 'listdata'
+      // routeName: 'listdata',
+      // params: { action: 'fromCreate'}
     })
-    this.props.navigation.dispatch(backAction);
+    this.props.navigation.dispatch(navigateAction);
     this.props.navigation.goBack(null);
     // this.props.navigation.goBack('detaildata');
+
+
+    // const resetAction = NavigationActions.reset({
+    //   index: 1,
+    //   actions: [
+    //     NavigationActions.navigate({ routeName: 'mainflow' }),
+    //     NavigationActions.navigate({ routeName: 'mapflow' })
+    //   ]
+    // });
+    // this.props.navigation.dispatch(resetAction);
+    // this.props.navigation.navigate('mapflow', { action: 'fromCreate' });
   }
 
   renderButtons() {
     return (
       <View style={styles.rowButtons}>
         <Button
-          raised
           iconRight
-          large
-          backgroundColor='#8BC34A'
+          buttonStyle={{ borderColor: '#8BC34A', borderWidth: 1 }}
+          backgroundColor='#ffffff'
+          color='#8BC34A'
           onPress={this.goBackListData.bind(this)}
-          icon={{ name: 'close', type: 'font-awesome' }}
+          icon={{ name: 'close', type: 'font-awesome', color: '#8BC34A' }}
           title={strings.cancel} />
         <Button
-          raised
           iconRight
-          large
           backgroundColor='#8BC34A'
           onPress={this.sendCreateSave.bind(this)}
           icon={{ name: 'save', type: 'font-awesome' }}
@@ -115,13 +126,11 @@ class CreateDataScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header headerText={strings.addData} icon='edit' />
+        <Header headerText={strings.addData} icon='edit' mystyle={{ borderBottomLeftRadius:40, borderBottomRightRadius: 40, paddingBottom: 20 }}/>
         <View style={styles.containerForm}>
           <EditDataForm />
         </View>
-        <View style={styles.containerButtons}>
-          {this.renderButtons()}
-        </View>
+        {this.renderButtons()}
       </View>
     );
   }
@@ -131,7 +140,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
+    backgroundColor: '#ffffff'
   },
   containerButtons: {
     paddingTop: 15,
@@ -142,12 +152,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    marginBottom: 25
+    marginBottom: 10,
+    marginTop: 10
   },
   containerForm: {
-    // minHeight: '35%',
     flex: 4,
-    justifyContent: 'center'
   }
 });
 

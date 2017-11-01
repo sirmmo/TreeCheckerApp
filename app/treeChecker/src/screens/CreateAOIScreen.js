@@ -13,6 +13,8 @@ import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview-messaging/WebView';
 import LocalizedStrings from 'react-native-localization';
 import ProgressBar from 'react-native-progress/Bar';
+import { Dialog } from 'react-native-simple-dialogs';
+
 import { downloadTiles, resetDownload, setAOIModalVisible } from '../actions';
 import { CardSection } from '../components/common';
 import { strings } from './strings.js';
@@ -23,7 +25,7 @@ class CreateAOIScreen extends Component {
 	state = { isValid:false, aoiName:"", isDownloading:false };
 
 	static navigationOptions = ({ navigation, screenProps }) => ({
-		title: 'Create AOI',
+		title: 'Create AOI (1/2)',
 		//headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
 		tabBarVisible: false
 	});
@@ -89,10 +91,8 @@ class CreateAOIScreen extends Component {
 			<View style={styles.container}>
 				{this.renderMap()}
 				{this.renderModal()}
-        <CardSection>
+        <View style={styles.containerButtons}>
           <Button
-            raised
-            large
             iconRight
             icon={{name: 'arrow-right', type: 'foundation'}}
             style={styles.button}
@@ -101,7 +101,7 @@ class CreateAOIScreen extends Component {
             onPress={() => this.setModalVisible(true)}
             title={strings.next}
           />
-        </CardSection>
+        </View>
 
 			</View>
 		);
@@ -109,11 +109,8 @@ class CreateAOIScreen extends Component {
 
 	renderMap() {
 		return (
-			<View style={styles.container}>
-        <CardSection>
-        <Text style={styles.headerText}>{strings.selAOI}</Text>
-        </CardSection>
-
+			<View style={styles.containerMap}>
+        <Text style={styles.headerText}>{strings.selNewAOI}</Text>
 				<WebView
 					source={{ uri: 'file:///android_asset/web/createAOI.html' }}
 					ref={ (webview) => { this.setWebView(webview); } }
@@ -123,15 +120,41 @@ class CreateAOIScreen extends Component {
 		);
 	}
 
-	renderModal() {
+  renderModal() {
 		return (
+      <Dialog
+          visible={this.props.createAOIModalVisible}
+          title={strings.createAOI2}
+          onTouchOutside={() => this.setModalVisible(false)} >
+          <View>
+
+              <Text style={styles.headerText2}>{strings.nameAOI}</Text>
+              <FormLabel labelStyle={styles.labelName2}>{strings.name}</FormLabel>
+              <FormInput
+                placeholder={strings.aoiNameInput}
+                onChangeText={(text) => {this.setState({aoiName: text})}}
+                disabled={!this.state.isDownloading}
+              />
+
+            <View style={styles.containerButtons}>
+              {this.renderButtons()}
+            </View>
+
+          </View>
+      </Dialog>
+		);
+	}
+
+	renderModal2() {
+		return (
+
 			<Modal
-				animationType="slide"
-				transparent={false}
+				animationType="fade"
+				transparent={true}
 				visible={this.props.createAOIModalVisible}
 				onRequestClose={() => this.setModalVisible(false)}
 				>
-
+        <View style={styles.containerModal}>
         <Card
           title={strings.nameAOI}
           titleStyle={styles.headerText}
@@ -149,10 +172,13 @@ class CreateAOIScreen extends Component {
             {this.renderButtons()}
           </View>
         </Card>
+        </View>
 			</Modal>
 
 		);
 	}
+
+
 
 	renderButtons() {
 
@@ -178,21 +204,18 @@ class CreateAOIScreen extends Component {
 			return (
 				<View style={styles.rowButtons}>
           <Button
-            raised
-            reverse
-            buttonStyle={{flex: 1}}
-            backgroundColor='#8BC34A'
+            buttonStyle={styles.reverseButtonStyle}
+            //buttonStyle={{flex: 1}}
+            backgroundColor='#ffffff'
+            color='#8BC34A'
             iconRight
-            large
-            icon={{name: 'arrow-left', type: 'foundation'}}
+
+            icon={{name: 'arrow-left', type: 'foundation', color: '#8BC34A'}}
             onPress={() => this.setModalVisible(false)}
             title={strings.prev}
             accessibilityLabel={strings.close}
           />
 					<Button
-            buttonStyle={{flex: 1}}
-            raised
-            large
             iconRight
             backgroundColor='#8BC34A'
             icon={{ name: 'download', type: 'font-awesome' }}
@@ -212,7 +235,32 @@ class CreateAOIScreen extends Component {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+    paddingBottom: 10,
+    backgroundColor: '#C8E6C9'
 	},
+  containerMap: {
+		flex: 1,
+    paddingBottom: 5,
+	},
+  containerModal: {
+    // alignItems: 'center',
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    // flex: 1,
+    // justifyContent: 'center',
+    // marginVertical: '50%',
+  },
+  headerText: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 15,
+    padding: 15
+  },
+  headerText2: {
+    fontWeight: 'bold',
+    textAlign: 'justify',
+    fontSize: 15,
+    padding: 5
+  },
   containermodal: {
     flex: 1,
     borderWidth: 1,
@@ -232,16 +280,23 @@ const styles = StyleSheet.create({
 	button: {
     margin: 5
 	},
-  headerText: {
-    fontSize: 18
-  },
+  reverseButtonStyle: {
+
+		borderColor: '#8BC34A',
+		borderWidth: 1
+	},
   labelName: {
     fontWeight: 'bold',
     fontSize: 18,
     color: '#86939e'
   },
+  labelName2: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#86939e'
+  },
   containerButtons: {
-    paddingTop: 15,
+    paddingTop: 5,
 
     //minHeight: '15%',
     justifyContent: 'center',

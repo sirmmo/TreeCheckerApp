@@ -27,7 +27,7 @@ class MapScreen extends Component {
 
   componentDidMount() {
     console.debug('------------------------------------------componentDidMount');
-    if (this.props.navigation.state.params.action
+    if (this.props.navigation.state.params && this.props.navigation.state.params.action
         && this.props.navigation.state.params.action === 'goTo') {
 
       this.goto = {

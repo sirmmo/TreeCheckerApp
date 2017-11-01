@@ -78,10 +78,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    backgroundColor: '#C8E6C9'
   },
   listItem: {
-    padding: 10, height: 75, justifyContent: 'center'
+    marginTop: 0, padding: 10, height: 75, justifyContent: 'center'
   }
 });
 

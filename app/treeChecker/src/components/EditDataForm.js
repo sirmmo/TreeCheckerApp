@@ -10,13 +10,12 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { FormLabel, FormInput, Card as CardNative, Button, Icon } from 'react-native-elements';
-import LocalizedStrings from 'react-native-localization';
 import ImagePicker from 'react-native-image-picker';
 import RNSimpleCompass from 'react-native-simple-compass';
 import RNFS from 'react-native-fs';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
 
-import { Card, CardSection, CardSectionCol, Confirm } from '../components/common';
+import { CardSectionCol } from '../components/common';
 import { obsUpdate } from '../actions';
 import { strings } from '../screens/strings.js';
 
@@ -32,12 +31,12 @@ state = { showModal: false, item: {} };
       containerStyle={{ backgroundColor: '#C8E6C9' }}
       image={{ uri: img_uri }} >
       <Button
-        //onPress={this.onPressDeleteImage.bind(this, item)}
+        buttonStyle={{ borderColor: '#D32F2F', borderWidth: 1 }}
+        backgroundColor='#C8E6C9'
+        color='#D32F2F'
         onPress={() => this.setState({ showModal: !this.state.showModal, item })}
-        icon={{name: 'trash', type: 'font-awesome'}}
-        backgroundColor='#b71c1c'
-        buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-        title={strings.delete} />
+        icon={{ name: 'trash', type: 'font-awesome', color: '#D32F2F' }}
+        title={strings.delete}/>
     </CardNative>
     );
   }
@@ -55,13 +54,13 @@ state = { showModal: false, item: {} };
     const options = {
       storageOptions: {
         skipBackup: true,
-        path: 'images'
+        path: 'images',
+        noData: true
         // path: RNFS.DocumentDirectoryPath
       }
     };
 
     ImagePicker.showImagePicker(options, (response) => {
-      console.debug('Response = ', response);
 
       if (response.didCancel) {
         console.debug('User cancelled image picker');
@@ -73,10 +72,8 @@ state = { showModal: false, item: {} };
         //path: '/storage/emulated/0/DCIM/Screenshots/Screenshot_20170830-184720.png',
         //const degree_update_rate = 3; // Number of degrees changed before the callback is triggered
         RNSimpleCompass.start(3, (degree) => {
-          console.debug('You are facing', degree);
           RNSimpleCompass.stop();
           const imgArray = [...this.props.images];
-          console.debug('imgArray', imgArray);
           imgArray.push({
             url: response.path,
             uri: response.uri,
@@ -117,10 +114,6 @@ state = { showModal: false, item: {} };
   }
 
   renderPicker(list, propLabel, selectedVal) {
-    // const { crownList } = this.props;
-    console.debug('list', list);
-    console.debug('propLabel', propLabel);
-    console.debug('selectedVal', selectedVal);
     const pick = [];
     for (let [key, item] of Object.entries(list)) {
       pick.push(<Picker.Item key={item.key} label={item.name} value={item.key} />);
@@ -132,22 +125,16 @@ state = { showModal: false, item: {} };
         selectedValue={selectedVal}
         onValueChange={value => this.props.obsUpdate({ prop: propLabel, value })}
       >
-      {
-        // list.map((item, i) => (
-        //     <Picker.Item label={item.name} value={item.key} />
-        // ))
-        pick
-      }
+      { pick }
       </Picker>
     );
   }
 
   renderForm() {
-    console.debug('this.props.canopyList', this.props.canopyList);
     return(
-      <Card style={{width: '100%'}}>
+      <View style={{width: '100%'}}>
 
-            <CardSectionCol >
+            <CardSectionCol style={{flex: 1}}>
               <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
               <FormInput
                 value={this.props.name}
@@ -155,17 +142,19 @@ state = { showModal: false, item: {} };
               />
             </CardSectionCol>
 
-            <CardSectionCol style={styles.paddingCol}>
-              <Text style={styles.labelName}>{strings.crown}</Text>
-              {this.renderPicker(this.props.crownList, 'crown_diameter', this.props.crown_diameter)}
-            </CardSectionCol>
+            <View style={{ flexDirection: 'row', paddingRight: 10, paddingLeft: 25 }}>
+              <CardSectionCol style={{flex: 1}}>
+                <Text style={styles.labelName}>{strings.crown}</Text>
+                {this.renderPicker(this.props.crownList, 'crown_diameter', this.props.crown_diameter)}
+              </CardSectionCol>
 
-            <CardSectionCol style={styles.paddingCol}>
-              <Text style={styles.labelName}>{strings.canopy}</Text>
-              {this.renderPicker(this.props.canopyList, 'canopy_status', this.props.canopy_status)}
-            </CardSectionCol>
+              <CardSectionCol style={{flex: 1}}>
+                <Text style={styles.labelName}>{strings.canopy}</Text>
+                {this.renderPicker(this.props.canopyList, 'canopy_status', this.props.canopy_status)}
+              </CardSectionCol>
+            </View>
 
-            <CardSectionCol >
+            <CardSectionCol style={{flex: 1}}>
               <FormLabel labelStyle={styles.labelName} >{strings.comment}</FormLabel>
               <FormInput
                 multiline
@@ -175,13 +164,9 @@ state = { showModal: false, item: {} };
             </CardSectionCol>
 
             {this.renderImagesSection()}
-      </Card>
+      </View>
     );
   }
-
-  // onAccept() {
-  //   this.onPressDeleteImage.bind(this, item)
-  // }
 
   onDecline() {
     this.setState({ showModal: false });
