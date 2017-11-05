@@ -29,6 +29,16 @@ class MapScreen extends Component {
     console.debug('------------------------------------------componentDidMount');
     this.initServer();
 
+    if (this.props.navigation.state.params && this.props.navigation.state.params.action
+        && this.props.navigation.state.params.action === 'goTo') {
+
+      this.goto = {
+        latitude: this.props.navigation.state.params.latitude,
+        longitude: this.props.navigation.state.params.longitude
+      };
+
+    }
+
     const { messagesChannel } = this.webview;
     messagesChannel.on('json', json => {
       console.debug(json);
