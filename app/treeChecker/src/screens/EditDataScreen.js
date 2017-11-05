@@ -95,12 +95,24 @@ class EditDataScreen extends Component {
     this.props.navigation.goBack(null);
     // this.props.navigation.goBack('detaildata');
   }
+  async checkTreeSpecieValue() {
+
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+
+    if (comp(this.props.treeSpeciesList[this.props.tree_specie].name, this.props.tmp_treeSpecieName)) {
+      return this.props.treeSpeciesList[this.props.tree_specie];
+    } else {
+      const treeItem = _.find(this.props.treeSpeciesList, ['name', this.props.tmp_treeSpecieName.toLowerCase().trim()]);
+      return treeItem;
+    }
+  }
 
   async sendUpdateSave() {
 
     const canopyItem = this.props.canopyList[this.props.canopy_status];
     const crownItem = this.props.crownList[this.props.crown_diameter];
-    const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    // const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    const treeItem = await this.checkTreeSpecieValue();
 
     await this.props.obsUpdateSaveLocal(
       // this.props.navigation,
@@ -249,7 +261,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
   const { currentGzId } = geoZonesData;
   const { token } = auth;
   // const { isConnected } = network;
-  const { name, tree_specie, crown_diameter, canopy_status, comment, position, images, isSaving } = obsData;
+  const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images, isSaving } = obsData;
 
   return {
     token,
@@ -258,6 +270,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
     currentGzId,
     name,
     tree_specie,
+    tmp_treeSpecieName,
     crown_diameter,
     canopy_status,
     comment,

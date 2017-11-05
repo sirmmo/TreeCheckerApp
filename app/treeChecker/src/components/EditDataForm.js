@@ -24,7 +24,18 @@ import { strings } from '../screens/strings.js';
 
 class EditDataForm extends Component {
 
-state = { showModal: false, item: {} };
+  state = {
+    showModal: false,
+    item: {},
+    //treeName: this.props.treeSpeciesList[this.props.tree_specie].name, //'',
+    treeList: Object.values(this.props.treeSpeciesList), //[]
+  };
+
+  componentDidMount() {
+    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: this.props.treeSpeciesList[this.props.tree_specie].name });
+  }
+
 
   _renderImageItem = ({ item }) => {
     const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
@@ -133,20 +144,34 @@ state = { showModal: false, item: {} };
   }
 
 
-  findTreeSpecie(treeSpecie) {
-    if (treeSpecie === '') {
+  findTreeSpecie(treeName) {
+    if (treeName === '') {
       return [];
     }
 
-    const { treeSpeciesList } = this.props.treeSpeciesList;
-    const regex = new RegExp(`${treeSpecie.trim()}`, 'i');
-    return treeSpeciesList.filter(tree => tree.search(regex) >= 0);
+    const { treeList } = this.state;
+    const regex = new RegExp(`${treeName.trim()}`, 'i');
+    return treeList.filter(tree => tree.name.search(regex) >= 0);
+  }
+
+  onPressTreeSpecie(key, name) {
+    this.props.obsUpdate({ prop: 'tree_specie', value: key });
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: name });
+    this.setState({ treeName: name })
+  }
+
+  onChangeTextTreeSpecie(text) {
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: text });
+    this.setState({ treeName: text })
   }
 
   renderForm() {
+    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
+    // this.setState('treeList', Object.values(this.props.treeSpeciesList));
 
-    const { tree } = this.props.tree_specie;
-    const trees = this.findTreeSpecie(tree);
+    // const { treeName } = this.state;
+    const treeName = this.props.tmp_treeSpecieName;
+    const treeList = this.findTreeSpecie(treeName);
     const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
     return(
@@ -163,22 +188,23 @@ state = { showModal: false, item: {} };
 
             <CardSectionCol style={{ flex: 1 }}>
                 <Text style={styles.labelName}>{strings.crown}</Text>
-                <View style={styles.autocompleteContainer}>
                   <Autocomplete
                     autoCapitalize="none"
                     autoCorrect={false}
+                    defaultValue={treeName}
                     containerStyle={styles.autocompleteContainer}
-                    data={trees.length === 1 && comp(tree, trees[0].name) ? [] : trees}
-                    onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
-                    renderItem={({ name }) => (
-                     <TouchableOpacity onPress={() => this.props.obsUpdate({ prop: 'tree_specie', name })}>
+                    data={treeList.length === 1 && comp(treeName, treeList[0].name) ? [] : treeList}
+                    //onChangeText={text => this.setState({ treeName: text })}
+                    onChangeText={text => this.onChangeTextTreeSpecie(text)}
+                    //onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
+                    renderItem={({ key, name }) => (
+                     <TouchableOpacity onPress={() => this.onPressTreeSpecie(key, name)}>
                        <Text style={styles.labelName}>
                          {name}
                        </Text>
                      </TouchableOpacity>
                    )}
                   />
-                </View>
             </CardSectionCol>
 
             <View style={{ flexDirection: 'row', paddingRight: 10, paddingLeft: 25 }}>
@@ -217,7 +243,7 @@ state = { showModal: false, item: {} };
   render() {
     return (
       <View>
-        <ScrollView style={styles.containerScroll}>
+        <ScrollView keyboardShouldPersistTaps='always' style={styles.containerScroll}>
           {this.renderForm()}
         </ScrollView>
         <ConfirmDialog
@@ -276,10 +302,6 @@ const styles = StyleSheet.create({
   },
   autocompleteContainer: {
     flex: 1,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
     zIndex: 1
   }
 });
@@ -287,9 +309,9 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = ({ obsData, selectFormData }) => {
   const { canopyList, crownList, treeSpeciesList } = selectFormData;
-  const { name, tree_specie, crown_diameter, canopy_status, comment, position, images } = obsData;
+  const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images } = obsData;
 
-  return { canopyList, crownList, treeSpeciesList, name, tree_specie, crown_diameter, canopy_status, comment, position, images };
+  return { canopyList, crownList, treeSpeciesList, name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images };
 };
 
 export default connect(mapStateToProps, { obsUpdate })(EditDataForm);
