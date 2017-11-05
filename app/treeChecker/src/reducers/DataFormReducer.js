@@ -9,6 +9,7 @@ import {
 const INITIAL_STATE = {
   name: '',
   tree_specie: '',
+  tmp_treeSpecieName: '',
   crown_diameter: '',
   canopy_status: '',
   comment: '',
