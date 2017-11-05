@@ -126,7 +126,7 @@ class ListDataScreen extends Component {
 
       <MyListItem keyExtractor={(item, index) => item.key}>
         <View style={styles.colName}>
-          <Text style={textStyle}> {item.name} </Text>
+          <Text style={textStyle} onPress={this.onPressFile.bind(this, item)}> {item.name} </Text>
         </View>
         <View style={styles.colActions}>
         {colActions}
