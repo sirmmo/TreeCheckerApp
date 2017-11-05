@@ -25,7 +25,6 @@ class DetailDataScreen extends Component {
   state = { showDeleteModal: false, item: {}, currentSlide: 0 };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Detail Data Observation',
     tabBarVisible: false
     //headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });

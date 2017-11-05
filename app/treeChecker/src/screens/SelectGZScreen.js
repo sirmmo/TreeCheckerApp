@@ -21,7 +21,7 @@ class SelectGZScreen extends Component {
     // state.params.showModal = false;
     // const {user} = state.params;
     return {
-      title: 'Region of interest',//{strings.regionOfInterest},
+      title: `${strings.regionOfInterest}`,
       // headerRight: <Button textStyle={{width: 0}} icon={{name: 'menu'}} onPress={() => navigation.navigate('menu') } />,
       headerRight: <Icon name='menu' size={30} color='#ffffff' iconStyle={{padding: 4, marginRight: 5}} onPress={() => navigation.navigate('menu') } />
     };

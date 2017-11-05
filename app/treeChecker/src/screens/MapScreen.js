@@ -12,11 +12,12 @@ import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview-messaging/WebView';
 import { connect } from 'react-redux';
 import {  setUrlMapOffline, obsCreate, refreshSelectedAoiByIndex } from '../actions';
+import { strings } from './strings.js';
 
 class MapScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'MAP',
+    title: `${strings.mapTabName}`,
     headerRight: <Button icon={{name: 'menu'}} onPress={() => console.log('onPress Menu')} />,
     //tabBarVisible: false,
     // tabBarIcon: <Icon name='map' size={24} />,

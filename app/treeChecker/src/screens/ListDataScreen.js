@@ -21,7 +21,7 @@ class ListDataScreen extends Component {
   state = { showSyncDialog: false };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'DATA',
+    title: `${strings.dataTabName}`,
     headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
 

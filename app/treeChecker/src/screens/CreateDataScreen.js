@@ -20,7 +20,6 @@ import { CardSection, MyListItem, Card, Header } from '../components/common';
 class CreateDataScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Create Data Observation',
     tabBarVisible: false
     // headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
