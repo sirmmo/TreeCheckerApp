@@ -31,7 +31,8 @@ const MainFlow = StackNavigator({
 }, {
 	navigationOptions: {
 		headerTintColor: '#ffffff',
-		headerStyle: { backgroundColor: '#4CAF50' }
+		headerStyle: { backgroundColor: '#4CAF50' },
+		headerTitleStyle: {width: '80%'},
 	}
 });
 
