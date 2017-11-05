@@ -27,17 +27,7 @@ class MapScreen extends Component {
 
   componentDidMount() {
     console.debug('------------------------------------------componentDidMount');
-    if (this.props.navigation.state.params && this.props.navigation.state.params.action
-        && this.props.navigation.state.params.action === 'goTo') {
-
-      this.goto = {
-        latitude: this.props.navigation.state.params.latitude,
-        longitude: this.props.navigation.state.params.longitude
-      };
-
-    } else {
-      this.initServer();
-    }
+    this.initServer();
 
     const { messagesChannel } = this.webview;
     messagesChannel.on('json', json => {
@@ -45,9 +35,12 @@ class MapScreen extends Component {
       this.processMapAction(json);
     });
 
-    // messagesChannel.on('text', text => {
-    //   console.debug('text', text);
-    // });
+  }
+
+  componentDidUpdate() {
+
+    this.sendDataToMap();
+
   }
 
   processMapAction(json) {
@@ -96,6 +89,24 @@ class MapScreen extends Component {
 
   }
 
+  sendDataToMap() {
+
+    if (this.props.navigation.state.params && this.props.navigation.state.params.action
+        && this.props.navigation.state.params.action === 'goTo') {
+
+      const goto = {
+        latitude: this.props.navigation.state.params.latitude,
+        longitude: this.props.navigation.state.params.longitude
+      };
+
+      this.webview.sendJSON({ latitude: goto.latitude, longitude: goto.longitude });
+
+    }
+
+    this.webview.sendJSON({ obs: this.props.currentAoi.obs });
+
+  }
+
   initServer() {
     console.debug(RNFS.ExternalDirectoryPath);
     const myserver = new StaticServer(8080, RNFS.ExternalDirectoryPath);
@@ -117,7 +128,6 @@ class MapScreen extends Component {
   }
 
   render() {
-    const { selectedTab } = 'profile';
     return (
       <View style={styles.container}>
         <WebView

@@ -107,7 +107,7 @@ class ListDataScreen extends Component {
     let textStyle = styles.labelName;
     let colActions = [];
     colActions.push(<Icon name='file-text-o' type='font-awesome' onPress={this.onPressFile.bind(this, item)} />);
-    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: item.position.latitude, longitude: item.position.longitude }) }/> );
+    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={this.goToPressed.bind(this, item)}/> );
 
     if (item.toSync && item.toSync === true) {
       const key = item.key.toString();
