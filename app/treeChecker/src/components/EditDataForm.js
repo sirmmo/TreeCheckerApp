@@ -82,8 +82,6 @@ class EditDataForm extends Component {
       } else if (response.customButton) {
         console.debug('User tapped custom button: ', response.customButton);
       } else {
-        //path: '/storage/emulated/0/DCIM/Screenshots/Screenshot_20170830-184720.png',
-        //const degree_update_rate = 3; // Number of degrees changed before the callback is triggered
         RNSimpleCompass.start(3, (degree) => {
           RNSimpleCompass.stop();
           const imgArray = [...this.props.images];

@@ -92,7 +92,5 @@ export const strings = new LocalizedStrings({
    editWTText: 'And finally, you can edit the information of the observations.',
    menuWTText: 'By pressing the menu button (top right header of the main screens), you can access to your user profile to view this tutorial again.',
 
-
-
  }
 });
