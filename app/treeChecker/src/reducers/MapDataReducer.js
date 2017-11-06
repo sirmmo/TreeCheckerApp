@@ -63,9 +63,11 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, currentObs: state.currentAoi.obs[action.payload] };
 
     case UPDATE_INDEX_OBS_AOI: {
-    const { newKey, oldKey } = action.payload;
-    const obs = { ...state.currentAoi.obs[oldKey] }
+    const { newKey, oldKey, tree_specie_key } = action.payload;
+    const obs = { ...state.currentAoi.obs[oldKey] };
+    console.debug('UPDATE_INDEX_OBS_AOI', obs);
     obs.key = newKey;
+    obs.tree_specie.key = tree_specie_key;
     return { ...state,
             currentAoi: {
               ...state.currentAoi,
@@ -116,7 +118,7 @@ export default (state = INITIAL_STATE, action) => {
               }
             };
     case UPDATE_CURRENTAOI_TOSYNC: {
-      const { sobsKey, saoiId, sync } = action.payload;
+      const { sobsKey, saoiId, sync, tree_specie } = action.payload;
       // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
       if (state.currentAoiId === saoiId) {
         return { ...state,
@@ -126,6 +128,7 @@ export default (state = INITIAL_STATE, action) => {
                     ...state.currentAoi.obs,
                     [sobsKey]: {
                       ...state.currentAoi.obs[sobsKey],
+                      tree_specie,
                       toSync: sync
                     }
                   }

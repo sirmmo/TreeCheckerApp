@@ -13,7 +13,7 @@ import { NavigationActions } from 'react-navigation';
 // import LocalizedStrings from 'react-native-localization';
 import RNSimpleCompass from 'react-native-simple-compass';
 import EditDataForm from '../components/EditDataForm.js';
-import { obsUpdate, obsResetForm, obsCreateSaveLocal, obsCreateSaveServer } from '../actions';
+import { obsUpdate, obsResetForm, obsCreateSaveLocal, obsCreateSaveServer, addNewTreeSpecie } from '../actions';
 import { strings } from './strings.js';
 import { CardSection, MyListItem, Card, Header } from '../components/common';
 
@@ -35,11 +35,36 @@ class CreateDataScreen extends Component {
     console.debug(this.props.position);
   }
 
+  async addNewTreeSpecie() {
+    const item = { key: `new_${Date.now()}`, name: this.props.tmp_treeSpecieName };
+    console.debug('addNewTreeSpecie', item);
+    this.props.addNewTreeSpecie(item);
+    return item;
+  }
+
+  async checkTreeSpecieValue() {
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+    if (comp(this.props.treeSpeciesList[this.props.tree_specie].name, this.props.tmp_treeSpecieName)) {
+      return this.props.treeSpeciesList[this.props.tree_specie];
+    }
+
+    let treeItem = _.find(this.props.treeSpeciesList, ['name', this.props.tmp_treeSpecieName.toLowerCase().trim()]);
+    if (treeItem !== undefined) {
+      return treeItem;
+    }
+
+    treeItem = await this.addNewTreeSpecie();
+    return treeItem;
+
+    //return (typeof treeItem !== undefined ? treeItem : await this.addNewTreeSpecie());
+  }
+
   async sendCreateSave() {
 
     const canopyItem = this.props.canopyList[this.props.canopy_status];
     const crownItem = this.props.crownList[this.props.crown_diameter];
-    const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    //const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    const treeItem = await this.checkTreeSpecieValue();
 
     const newKey = `new_${Date.now()}`;
 
@@ -166,7 +191,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
   const { currentGzId } = geoZonesData;
   const { token } = auth;
   // const { isConnected } = network;
-  const { name, tree_specie, crown_diameter, canopy_status, comment, position, images, isSaving, compass } = obsData;
+  const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images, isSaving, compass } = obsData;
 
   return {
     token,
@@ -174,6 +199,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
     currentGzId,
     name,
     tree_specie,
+    tmp_treeSpecieName,
     crown_diameter,
     canopy_status,
     comment,
@@ -190,7 +216,8 @@ const myCreateDataScreen = connect(mapStateToProps, {
   obsUpdate,
   obsResetForm,
   obsCreateSaveLocal,
-  obsCreateSaveServer
+  obsCreateSaveServer,
+  addNewTreeSpecie
   // obsUpdateSaveLocal
 })(CreateDataScreen);
 

@@ -45,6 +45,7 @@ export const strings = new LocalizedStrings({
    addData: 'Add new data...',
    name: 'Name',
    treeSpecies: 'Tree Species',
+   treeSpecie: 'Tree Specie',
    crown: 'Crown diameter',
    canopy: 'Canopy status',
    photo: 'Photo',

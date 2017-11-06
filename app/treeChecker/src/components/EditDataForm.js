@@ -186,20 +186,22 @@ class EditDataForm extends Component {
               />
             </CardSectionCol>
 
-            <CardSectionCol style={{ flex: 1 }}>
-                <Text style={styles.labelName}>{strings.crown}</Text>
+            <CardSectionCol style={{ flex: 1, paddingRight: 10, paddingLeft: 25 }}>
+                <Text style={styles.labelName}>{strings.treeSpecie}</Text>
                   <Autocomplete
                     autoCapitalize="none"
                     autoCorrect={false}
                     defaultValue={treeName}
                     containerStyle={styles.autocompleteContainer}
+                    inputContainerStyle={{ borderWidth: 0}}
+                    listContainerStyle={{ zIndex: 1 }}
                     data={treeList.length === 1 && comp(treeName, treeList[0].name) ? [] : treeList}
                     //onChangeText={text => this.setState({ treeName: text })}
                     onChangeText={text => this.onChangeTextTreeSpecie(text)}
                     //onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
                     renderItem={({ key, name }) => (
                      <TouchableOpacity onPress={() => this.onPressTreeSpecie(key, name)}>
-                       <Text style={styles.labelName}>
+                       <Text >
                          {name}
                        </Text>
                      </TouchableOpacity>

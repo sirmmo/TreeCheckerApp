@@ -16,7 +16,7 @@ import { NavigationActions } from 'react-navigation';
 
 import { strings } from './strings.js';
 import EditDataForm from '../components/EditDataForm.js';
-import { obsUpdate, obsUpdateSaveServer, obsUpdateSaveLocal } from '../actions';
+import { obsUpdate, obsUpdateSaveServer, obsUpdateSaveLocal, addNewTreeSpecie } from '../actions';
 import { CardSection, MyListItem, Card, Header, MySpinner } from '../components/common';
 
 
@@ -95,16 +95,29 @@ class EditDataScreen extends Component {
     this.props.navigation.goBack(null);
     // this.props.navigation.goBack('detaildata');
   }
+
+  async addNewTreeSpecie() {
+    const item = { key: `new_${Date.now()}`, name: this.props.tmp_treeSpecieName };
+    console.debug('addNewTreeSpecie', item);
+    this.props.addNewTreeSpecie(item);
+    return item;
+  }
+
   async checkTreeSpecieValue() {
-
     const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-
     if (comp(this.props.treeSpeciesList[this.props.tree_specie].name, this.props.tmp_treeSpecieName)) {
       return this.props.treeSpeciesList[this.props.tree_specie];
-    } else {
-      const treeItem = _.find(this.props.treeSpeciesList, ['name', this.props.tmp_treeSpecieName.toLowerCase().trim()]);
+    }
+
+    let treeItem = _.find(this.props.treeSpeciesList, ['name', this.props.tmp_treeSpecieName.toLowerCase().trim()]);
+    if (treeItem !== undefined) {
       return treeItem;
     }
+
+    treeItem = await this.addNewTreeSpecie();
+    return treeItem;
+    
+    //return (typeof treeItem !== undefined ? treeItem : await this.addNewTreeSpecie());
   }
 
   async sendUpdateSave() {
@@ -285,7 +298,8 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
 const myEditDataScreen = connect(mapStateToProps, {
   obsUpdate,
   obsUpdateSaveServer,
-  obsUpdateSaveLocal
+  obsUpdateSaveLocal,
+  addNewTreeSpecie
 })(EditDataScreen);
 
 export { myEditDataScreen as EditDataScreen };
