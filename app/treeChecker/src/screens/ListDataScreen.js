@@ -21,7 +21,7 @@ class ListDataScreen extends Component {
   state = { showSyncDialog: false };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'DATA',
+    title: `${strings.dataTabName}`,
     headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
 
@@ -107,7 +107,7 @@ class ListDataScreen extends Component {
     let textStyle = styles.labelName;
     let colActions = [];
     colActions.push(<Icon name='file-text-o' type='font-awesome' onPress={this.onPressFile.bind(this, item)} />);
-    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: item.position.latitude, longitude: item.position.longitude }) }/> );
+    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={this.goToPressed.bind(this, item)}/> );
 
     if (item.toSync && item.toSync === true) {
       const key = item.key.toString();
@@ -126,7 +126,7 @@ class ListDataScreen extends Component {
 
       <MyListItem keyExtractor={(item, index) => item.key}>
         <View style={styles.colName}>
-          <Text style={textStyle}> {item.name} </Text>
+          <Text style={textStyle} onPress={this.onPressFile.bind(this, item)}> {item.name} </Text>
         </View>
         <View style={styles.colActions}>
         {colActions}

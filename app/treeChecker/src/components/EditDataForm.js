@@ -6,7 +6,8 @@ import {
   View,
   Text,
   Picker,
-  FlatList
+  FlatList,
+  TouchableOpacity
 } from 'react-native';
 import { connect } from 'react-redux';
 import { FormLabel, FormInput, Card as CardNative, Button, Icon } from 'react-native-elements';
@@ -14,6 +15,7 @@ import ImagePicker from 'react-native-image-picker';
 import RNSimpleCompass from 'react-native-simple-compass';
 import RNFS from 'react-native-fs';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
+import Autocomplete from 'react-native-autocomplete-input';
 
 import { CardSectionCol } from '../components/common';
 import { obsUpdate } from '../actions';
@@ -22,7 +24,18 @@ import { strings } from '../screens/strings.js';
 
 class EditDataForm extends Component {
 
-state = { showModal: false, item: {} };
+  state = {
+    showModal: false,
+    item: {},
+    //treeName: this.props.treeSpeciesList[this.props.tree_specie].name, //'',
+    treeList: Object.values(this.props.treeSpeciesList), //[]
+  };
+
+  componentDidMount() {
+    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: this.props.treeSpeciesList[this.props.tree_specie].name });
+  }
+
 
   _renderImageItem = ({ item }) => {
     const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
@@ -98,8 +111,8 @@ state = { showModal: false, item: {} };
             reverse
             size={20}
             color='#8BC34A'
-            name='plus-circle'
-            type='font-awesome'
+            name='add-a-photo'
+            type='material-icons'
             onPress={this.addPicture.bind(this)} />
         </View>
         <FlatList
@@ -130,16 +143,70 @@ state = { showModal: false, item: {} };
     );
   }
 
+
+  findTreeSpecie(treeName) {
+    if (treeName === '') {
+      return [];
+    }
+
+    const { treeList } = this.state;
+    const regex = new RegExp(`${treeName.trim()}`, 'i');
+    return treeList.filter(tree => tree.name.search(regex) >= 0);
+  }
+
+  onPressTreeSpecie(key, name) {
+    this.props.obsUpdate({ prop: 'tree_specie', value: key });
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: name });
+    this.setState({ treeName: name })
+  }
+
+  onChangeTextTreeSpecie(text) {
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: text });
+    this.setState({ treeName: text })
+  }
+
   renderForm() {
+    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
+    // this.setState('treeList', Object.values(this.props.treeSpeciesList));
+
+    // const { treeName } = this.state;
+    const treeName = this.props.tmp_treeSpecieName;
+    const treeList = this.findTreeSpecie(treeName);
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+
     return(
       <View style={{width: '100%'}}>
 
             <CardSectionCol style={{flex: 1}}>
               <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
               <FormInput
+                underlineColorAndroid='#8BC34A'
                 value={this.props.name}
                 onChangeText={value => this.props.obsUpdate({ prop: 'name', value })}
               />
+            </CardSectionCol>
+
+            <CardSectionCol style={{ flex: 1, paddingRight: 10, paddingLeft: 25 }}>
+                <Text style={styles.labelName}>{strings.treeSpecie}</Text>
+                  <Autocomplete
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    defaultValue={treeName}
+                    containerStyle={styles.autocompleteContainer}
+                    inputContainerStyle={{ borderWidth: 0}}
+                    listContainerStyle={{ zIndex: 1 }}
+                    data={treeList.length === 1 && comp(treeName, treeList[0].name) ? [] : treeList}
+                    //onChangeText={text => this.setState({ treeName: text })}
+                    onChangeText={text => this.onChangeTextTreeSpecie(text)}
+                    //onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
+                    renderItem={({ key, name }) => (
+                     <TouchableOpacity onPress={() => this.onPressTreeSpecie(key, name)}>
+                       <Text >
+                         {name}
+                       </Text>
+                     </TouchableOpacity>
+                   )}
+                  />
             </CardSectionCol>
 
             <View style={{ flexDirection: 'row', paddingRight: 10, paddingLeft: 25 }}>
@@ -158,6 +225,9 @@ state = { showModal: false, item: {} };
               <FormLabel labelStyle={styles.labelName} >{strings.comment}</FormLabel>
               <FormInput
                 multiline
+                underlineColorAndroid='#8BC34A'
+                returnKeyLabel='done'
+                autogrow
                 value={this.props.comment}
                 onChangeText={value => this.props.obsUpdate({ prop: 'comment', value })}
               />
@@ -175,7 +245,7 @@ state = { showModal: false, item: {} };
   render() {
     return (
       <View>
-        <ScrollView style={styles.containerScroll}>
+        <ScrollView keyboardShouldPersistTaps='always' style={styles.containerScroll}>
           {this.renderForm()}
         </ScrollView>
         <ConfirmDialog
@@ -231,15 +301,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 25
+  },
+  autocompleteContainer: {
+    flex: 1,
+    zIndex: 1
   }
 });
 
 
 const mapStateToProps = ({ obsData, selectFormData }) => {
   const { canopyList, crownList, treeSpeciesList } = selectFormData;
-  const { name, tree_specie, crown_diameter, canopy_status, comment, position, images } = obsData;
+  const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images } = obsData;
 
-  return { canopyList, crownList, treeSpeciesList, name, tree_specie, crown_diameter, canopy_status, comment, position, images };
+  return { canopyList, crownList, treeSpeciesList, name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images };
 };
 
 export default connect(mapStateToProps, { obsUpdate })(EditDataForm);

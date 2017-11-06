@@ -25,7 +25,6 @@ class DetailDataScreen extends Component {
   state = { showDeleteModal: false, item: {}, currentSlide: 0 };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Detail Data Observation',
     tabBarVisible: false
     //headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
@@ -114,7 +113,7 @@ class DetailDataScreen extends Component {
     const imgUri = (img.uri ? img.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${img.url}` );
     return (
       <View
-        keyExtractor={(viewimg) => viewimg.key}
+        keyExtractor={(img) => img.key}
         style={styles.imgContStyle}
       >
         <Image style={styles.imgStyle} source={{ uri: imgUri }} />

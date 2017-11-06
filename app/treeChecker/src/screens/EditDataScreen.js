@@ -16,14 +16,13 @@ import { NavigationActions } from 'react-navigation';
 
 import { strings } from './strings.js';
 import EditDataForm from '../components/EditDataForm.js';
-import { obsUpdate, obsUpdateSaveServer, obsUpdateSaveLocal } from '../actions';
+import { obsUpdate, obsUpdateSaveServer, obsUpdateSaveLocal, addNewTreeSpecie } from '../actions';
 import { CardSection, MyListItem, Card, Header, MySpinner } from '../components/common';
 
 
 class EditDataScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Edit Data Observation',
     tabBarVisible: false
     // headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
@@ -96,11 +95,36 @@ class EditDataScreen extends Component {
     // this.props.navigation.goBack('detaildata');
   }
 
+  async addNewTreeSpecie() {
+    const item = { key: `new_${Date.now()}`, name: this.props.tmp_treeSpecieName };
+    console.debug('addNewTreeSpecie', item);
+    this.props.addNewTreeSpecie(item);
+    return item;
+  }
+
+  async checkTreeSpecieValue() {
+    const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
+    if (comp(this.props.treeSpeciesList[this.props.tree_specie].name, this.props.tmp_treeSpecieName)) {
+      return this.props.treeSpeciesList[this.props.tree_specie];
+    }
+
+    let treeItem = _.find(this.props.treeSpeciesList, ['name', this.props.tmp_treeSpecieName.toLowerCase().trim()]);
+    if (treeItem !== undefined) {
+      return treeItem;
+    }
+
+    treeItem = await this.addNewTreeSpecie();
+    return treeItem;
+    
+    //return (typeof treeItem !== undefined ? treeItem : await this.addNewTreeSpecie());
+  }
+
   async sendUpdateSave() {
 
     const canopyItem = this.props.canopyList[this.props.canopy_status];
     const crownItem = this.props.crownList[this.props.crown_diameter];
-    const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    // const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
+    const treeItem = await this.checkTreeSpecieValue();
 
     await this.props.obsUpdateSaveLocal(
       // this.props.navigation,
@@ -170,11 +194,11 @@ class EditDataScreen extends Component {
     console.debug('rendermap');
     return (
       <View style={styles.containerMap}>
-        <CardSection style={{backgroundColor: '#C8E6C9'}}>
+        <CardSection style={{backgroundColor: '#8BC34A'}}>
         <Text>{strings.moveMap}</Text>
         </CardSection>
         <WebView
-          source={require('./resources/web/centerPin.html')}
+          source={{ uri: 'file:///android_asset/web/centerPin.html' }}
           ref={ (webview) => { this.setWebView(webview); } }
           style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
         />
@@ -249,7 +273,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
   const { currentGzId } = geoZonesData;
   const { token } = auth;
   // const { isConnected } = network;
-  const { name, tree_specie, crown_diameter, canopy_status, comment, position, images, isSaving } = obsData;
+  const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images, isSaving } = obsData;
 
   return {
     token,
@@ -258,6 +282,7 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
     currentGzId,
     name,
     tree_specie,
+    tmp_treeSpecieName,
     crown_diameter,
     canopy_status,
     comment,
@@ -272,7 +297,8 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
 const myEditDataScreen = connect(mapStateToProps, {
   obsUpdate,
   obsUpdateSaveServer,
-  obsUpdateSaveLocal
+  obsUpdateSaveLocal,
+  addNewTreeSpecie
 })(EditDataScreen);
 
 export { myEditDataScreen as EditDataScreen };

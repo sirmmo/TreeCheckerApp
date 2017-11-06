@@ -25,7 +25,7 @@ class CreateAOIScreen extends Component {
 	state = { isValid:false, aoiName:"", isDownloading:false };
 
 	static navigationOptions = ({ navigation, screenProps }) => ({
-		title: 'Create AOI (1/2)',
+		title: `${strings.createAOI1}`,
 		//headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
 		tabBarVisible: false
 	});
@@ -112,7 +112,7 @@ class CreateAOIScreen extends Component {
 			<View style={styles.containerMap}>
         <Text style={styles.headerText}>{strings.selNewAOI}</Text>
 				<WebView
-					source={require('./resources/web/createAOI.html')}
+					source={{ uri: 'file:///android_asset/web/createAOI.html' }}
 					ref={ (webview) => { this.setWebView(webview); } }
 					style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
 				/>
@@ -131,6 +131,7 @@ class CreateAOIScreen extends Component {
               <Text style={styles.headerText2}>{strings.nameAOI}</Text>
               <FormLabel labelStyle={styles.labelName2}>{strings.name}</FormLabel>
               <FormInput
+                underlineColorAndroid='#8BC34A'
                 placeholder={strings.aoiNameInput}
                 onChangeText={(text) => {this.setState({aoiName: text})}}
                 disabled={!this.state.isDownloading}
@@ -163,6 +164,7 @@ class CreateAOIScreen extends Component {
 
             <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
             <FormInput
+              underlineColorAndroid='#8BC34A'
               placeholder={strings.aoiNameInput}
               onChangeText={(text) => {this.setState({aoiName: text})}}
               disabled={!this.state.isDownloading}

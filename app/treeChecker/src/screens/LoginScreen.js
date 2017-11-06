@@ -56,6 +56,7 @@ class LoginScreen extends Component {
       <View style={styles.containerForm}>
         <FormLabel labelStyle={styles.labelStyle}>{strings.Username}</FormLabel>
         <FormInput
+          underlineColorAndroid='#8BC34A'
           placeholder={strings.username}
           onChangeText={this.onUsernameChanged.bind(this)}
           value={this.props.username}

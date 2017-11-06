@@ -5,13 +5,14 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "build-web": "webpack --progress"
+    "build-web": "webpack --progress && xcopy \"./src/screens/resources/web\" \"./android/app/src/main/assets/web\" /E /I /Y"
   },
   "dependencies": {
     "axios": "^0.16.2",
     "lodash": "^4.17.4",
     "react": "16.0.0-alpha.12",
     "react-native": "0.48.3",
+    "react-native-autocomplete-input": "^3.4.0",
     "react-native-button-component": "^0.1.25",
     "react-native-elements": "^0.16.0",
     "react-native-fs": "^2.8.1",

@@ -37,6 +37,8 @@ export const SET_URL_MAP_OFFLINE = 'set_url_map_offline';
 export const SET_CANOPY_LIST = 'set_canopy_list';
 export const SET_CROWN_LIST = 'set_crown_list';
 export const SET_TREE_SPECIES_LIST = 'set_tree_species_list';
+export const ADD_NEW_TREE_SPECIE = 'add_new_tree_specie';
+export const REMOVE_TREE_SPECIE = 'remove_tree_specie';
 export const SET_SYNC_STATUS = 'set_sync_status';
 
 export const OBS_UPDATE = 'obs_update';

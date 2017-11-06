@@ -16,7 +16,7 @@ import { logout, resetState } from '../actions';
 class ProfileScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Menu',
+    title: `${strings.menu}`,
     headerTintColor: '#ffffff',
     headerStyle: { backgroundColor: '#4CAF50'}
   });

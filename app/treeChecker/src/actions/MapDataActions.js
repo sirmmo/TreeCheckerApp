@@ -28,7 +28,9 @@ import {
   OBS_SELECTED_BY_INDEX,
   UPDATE_OBS_AOI,
   UPDATE_OBS_ALLAOI,
-  UPDATE_CURRENTAOI_TOSYNC
+  UPDATE_CURRENTAOI_TOSYNC,
+  ADD_NEW_TREE_SPECIE,
+  REMOVE_TREE_SPECIE
 } from './types';
 
 import {
@@ -38,6 +40,13 @@ import {
   URL_API_AOIS
 } from './urls';
 
+
+export const addNewTreeSpecie = (item) => {
+  return {
+    type: ADD_NEW_TREE_SPECIE,
+    payload: item
+  };
+};
 
 export const setUrlMapOffline = ({ urlMapOffline, serverStarted, server}) => {
   console.log(`urlMapOffline ${urlMapOffline}`);
@@ -92,16 +101,14 @@ export const obsResetForm = () => {
   };
 };
 
-export const obsCreate = (pos) => {
+export const obsCreate = (pos, numObs) => {
   return {
     type: OBS_CREATE,
-    payload: pos
+    payload: {pos, numObs}
   };
 };
 
 async function uploadImage(token, img, obsKey, latitude, longitude) {
-
-  console.debug('---------------------------------------------------------------uploadimage....');
 
   const instance = axios.create({
     headers: {
@@ -109,10 +116,6 @@ async function uploadImage(token, img, obsKey, latitude, longitude) {
       'Content-Type':'application/json'
     }
   });
-
-    // RNFS.readFile(f1, 'utf8').then(contents => {
-    //    this.assert('Read F1', contents, 'foo © bar 𝌆 bazbaz 𝌆 bar © foo');
-    //  });
 
     let contents = await RNFS.readFile(img.url, 'base64');
 
@@ -194,7 +197,7 @@ async function updateData(token, obsKey, name, tree_specie, crown_diameter, cano
 
       var newData = {
           name: name,
-          tree_specie: tree_specie.key,
+          tree_specie: (tree_specie.key.toString().startsWith('new_') ? tree_specie.name : tree_specie.key),
           crown_diameter: crown_diameter.key,
           canopy_status: canopy_status.key,
           comment: comment,
@@ -209,8 +212,11 @@ async function updateData(token, obsKey, name, tree_specie, crown_diameter, cano
 
       let response = await instance.put(`${URL_UPDATE_OBS}${obsKey}/`, newData);
 
-      if (response.status == 200 ) return true;
-      else  return false;
+      if (response.status == 200 ) {
+        return {success: true, data: response.data};
+      }
+
+      return {success: false, data: {}};
 
   } catch(error) {
     console.debug('error:', error);
@@ -223,18 +229,28 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
 
   async function thunk(dispatch) {
 
-    console.debug('*********obsUpdateSaveServer');
     if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: true });
+    let new_tree_specie = { ...tree_specie };
+
     try {
 
       let successImages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
       let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImages);
 
-      const sync = (successData && successImages.success ? false : true);
+      const sync = (successData.success && successImages.success ? false : true);
 
-      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync} });
-      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync} });
+
+      if(successData.success && tree_specie.key.toString().startsWith('new_')){
+        dispatch({ type: ADD_NEW_TREE_SPECIE, payload: {key: successData.data.tree_specie, name: tree_specie.name} });
+        dispatch({ type: REMOVE_TREE_SPECIE, payload: tree_specie.key });
+        new_tree_specie.key = successData.data.tree_specie;
+      }
+      //TODO Buscar i actualitzar la resta d'obs que tenien aquesta tree specie
+
+      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync, tree_specie: new_tree_specie } });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync, tree_specie: new_tree_specie} });
       dispatch({ type: CHECK_STATE, payload: {} });
+
       if ( fromListDataScreen ) {
         dispatch({ type: SET_SYNC_STATUS, payload: false });
       } else {
@@ -255,8 +271,8 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
     } catch(e) {
       console.debug(e);
       //TODO show toast??
-      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
-      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true} });
+      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true, tree_specie: new_tree_specie} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true, tree_specie: new_tree_specie} });
       if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
@@ -290,7 +306,6 @@ export const obsUpdateSaveLocal = ( currentObs, currentAoiId, name, tree_specie,
     dispatch({ type: UPDATE_OBS_AOI, payload: updatedObs.key });
     dispatch({ type: UPDATE_OBS_ALLAOI, payload: { updatedObs, currentAoiId} });
 
-
     dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: SET_SAVING_STATUS, payload: false });
     // dispatch({ type: OBS_SAVE_SUCCESS, payload: {} });
@@ -313,7 +328,7 @@ async function addData(token, currentAoiId, name, tree_specie, crown_diameter, c
 
       var newData = {
           name: name,
-          tree_specie: tree_specie.key,
+          tree_specie: (tree_specie.key.toString().startsWith('new_') ? tree_specie.name : tree_specie.key),
           crown_diameter: crown_diameter.key,
           canopy_status: canopy_status.key,
           comment: comment,
@@ -324,7 +339,7 @@ async function addData(token, currentAoiId, name, tree_specie, crown_diameter, c
 
       let response = await instance.post(`${URL_API_AOIS}${currentAoiId}/observations/`, newData);
       console.debug('addData response', response);
-      if (response.status === 200 ) return {success: true, obsKey: response.data.key };
+      if (response.status === 200 ) return {success: true, obsKey: response.data.key, tree_specie_key: response.data.tree_specie };
       else return {success: false, obsKey: ''};
 
   } catch(error) {
@@ -338,25 +353,31 @@ export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
 
   async function thunk(dispatch) {
 
-    console.debug('*********obsCreateSaveServer');
     if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: true });
+    let new_tree_specie = { ...tree_specie };
+
     try {
 
       let successData = await addData(token, currentAoiId, name, tree_specie, crown_diameter, canopy_status, comment, position, compass);
 
       if(successData.success){
 
-        dispatch({ type: UPDATE_INDEX_OBS, payload: { newKey: successData.obsKey, oldKey: currentObsKey, aoiId: currentAoiId } });
-        dispatch({ type: UPDATE_INDEX_OBS_AOI, payload: { newKey: successData.obsKey, oldKey: currentObsKey } });
-        dispatch({ type: OBS_DELETE, payload: { key: currentObsKey, currentAoiId, currentGzId} });
+        if(tree_specie.key.toString().startsWith('new_')){
+          dispatch({ type: ADD_NEW_TREE_SPECIE, payload: {key: successData.tree_specie_key, name: tree_specie.name} });
+          dispatch({ type: REMOVE_TREE_SPECIE, payload: tree_specie.key });
+          new_tree_specie.key = successData.tree_specie_key;
+        }
 
-        //dispatch({ type: OBS_DELETE_AOI, payload: { key: currentObsKey } });
+        dispatch({ type: UPDATE_INDEX_OBS, payload: { newKey: successData.obsKey, oldKey: currentObsKey, aoiId: currentAoiId, tree_specie_key: new_tree_specie.key } });
+        dispatch({ type: UPDATE_INDEX_OBS_AOI, payload: { newKey: successData.obsKey, oldKey: currentObsKey, tree_specie_key: new_tree_specie.key } });
+        dispatch({ type: OBS_DELETE, payload: { key: currentObsKey, currentAoiId, currentGzId} });
+        dispatch({ type: CHECK_STATE, payload: {} });
 
         let successImgages = await updateImages(dispatch, token, successData.obsKey, currentAoiId, currentGzId, images, position);
 
         if(successImgages.success){
-            dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: false} });
-            dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sync: false } });
+            dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: false, tree_specie: new_tree_specie} });
+            dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: successData.obsKey, saoiId: currentAoiId, sync: false, tree_specie: new_tree_specie } });
             if ( fromListDataScreen ) {
               dispatch({ type: SET_SYNC_STATUS, payload: false });
             } else {
@@ -379,8 +400,8 @@ export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
 
     } catch(e) {
       console.debug(e);
-      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true} });
-      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true } });
+      dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true, tree_specie: new_tree_specie} });
+      dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true, tree_specie: new_tree_specie } });
       if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
     }
   };
@@ -395,9 +416,8 @@ export const obsCreateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
 export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, images, compass, currentAoiId ) => {
 
   async function thunk(dispatch) {
-    console.debug('obsCreateSaveLocal.............');
-    dispatch({ type: SET_SAVING_STATUS, payload: true });
 
+    dispatch({ type: SET_SAVING_STATUS, payload: true });
 
     const newObs = {};
     newObs.key = obsKey;

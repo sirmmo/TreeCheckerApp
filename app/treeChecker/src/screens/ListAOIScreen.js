@@ -24,7 +24,7 @@ class ListAOIScreen extends Component {
   state = { showDeleteModal: false, key: '' };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'AOI List',
+    title: `${strings.aoiList}`,
     // headerRight: <Button icon={{name: 'menu'}} onPress={() => navigation.navigate('menu') } />,
     headerRight: <Icon name='menu' size={30} color='#ffffff' iconStyle={{padding: 4, marginRight: 5}} onPress={() => navigation.navigate('menu') } />
     // tabBarVisible: false

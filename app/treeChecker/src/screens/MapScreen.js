@@ -12,11 +12,12 @@ import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview-messaging/WebView';
 import { connect } from 'react-redux';
 import {  setUrlMapOffline, obsCreate, refreshSelectedAoiByIndex } from '../actions';
+import { strings } from './strings.js';
 
 class MapScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'MAP',
+    title: `${strings.mapTabName}`,
     headerRight: <Button icon={{name: 'menu'}} onPress={() => console.log('onPress Menu')} />,
     //tabBarVisible: false,
     // tabBarIcon: <Icon name='map' size={24} />,
@@ -27,6 +28,8 @@ class MapScreen extends Component {
 
   componentDidMount() {
     console.debug('------------------------------------------componentDidMount');
+    this.initServer();
+
     if (this.props.navigation.state.params && this.props.navigation.state.params.action
         && this.props.navigation.state.params.action === 'goTo') {
 
@@ -35,8 +38,6 @@ class MapScreen extends Component {
         longitude: this.props.navigation.state.params.longitude
       };
 
-    } else {
-      this.initServer();
     }
 
     const { messagesChannel } = this.webview;
@@ -45,9 +46,12 @@ class MapScreen extends Component {
       this.processMapAction(json);
     });
 
-    // messagesChannel.on('text', text => {
-    //   console.debug('text', text);
-    // });
+  }
+
+  componentDidUpdate() {
+
+    this.sendDataToMap();
+
   }
 
   processMapAction(json) {
@@ -59,7 +63,8 @@ class MapScreen extends Component {
           latitude: json.latitude,
           longitude: json.longitude
         };
-        this.props.obsCreate(pos);
+        //console.debug('this.props.currentAoi.obs.length', this.props.currentAoi.obs.length);
+        this.props.obsCreate(pos, Object.keys(this.props.currentAoi.obs).length+1);
         this.props.navigation.navigate('createdata');
         return;
 
@@ -95,6 +100,24 @@ class MapScreen extends Component {
 
   }
 
+  sendDataToMap() {
+
+    if (this.props.navigation.state.params && this.props.navigation.state.params.action
+        && this.props.navigation.state.params.action === 'goTo') {
+
+      const goto = {
+        latitude: this.props.navigation.state.params.latitude,
+        longitude: this.props.navigation.state.params.longitude
+      };
+
+      this.webview.sendJSON({ latitude: goto.latitude, longitude: goto.longitude });
+
+    }
+
+    this.webview.sendJSON({ obs: this.props.currentAoi.obs });
+
+  }
+
   initServer() {
     console.debug(RNFS.ExternalDirectoryPath);
     const myserver = new StaticServer(8080, RNFS.ExternalDirectoryPath);
@@ -116,11 +139,10 @@ class MapScreen extends Component {
   }
 
   render() {
-    const { selectedTab } = 'profile';
     return (
       <View style={styles.container}>
         <WebView
-          source={require('./resources/web/baseMap.html')}
+          source={{ uri: 'file:///android_asset/web/baseMap.html' }}
           ref={this._refWebView}
           style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
         />
