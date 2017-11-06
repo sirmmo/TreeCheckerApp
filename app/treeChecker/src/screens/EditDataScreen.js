@@ -17,7 +17,7 @@ import { NavigationActions } from 'react-navigation';
 import { strings } from './strings.js';
 import EditDataForm from '../components/EditDataForm.js';
 import { obsUpdate, obsUpdateSaveServer, obsUpdateSaveLocal, addNewTreeSpecie } from '../actions';
-import { CardSection, MyListItem, Card, Header, MySpinner } from '../components/common';
+import { CardSection, Header, MySpinner } from '../components/common';
 
 
 class EditDataScreen extends Component {
@@ -55,7 +55,6 @@ class EditDataScreen extends Component {
   sendInitParams() {
     const {position} = this.props;
     this.webview.sendJSON({ pos: position });
-    // console.log("--------- Send init params: " + JSON.stringify(position));
   }
 
   setWebView(webview) {
@@ -92,7 +91,6 @@ class EditDataScreen extends Component {
     })
     this.props.navigation.dispatch(backAction);
     this.props.navigation.goBack(null);
-    // this.props.navigation.goBack('detaildata');
   }
 
   async addNewTreeSpecie() {
@@ -115,40 +113,34 @@ class EditDataScreen extends Component {
 
     treeItem = await this.addNewTreeSpecie();
     return treeItem;
-    
-    //return (typeof treeItem !== undefined ? treeItem : await this.addNewTreeSpecie());
   }
 
   async sendUpdateSave() {
 
     const canopyItem = this.props.canopyList[this.props.canopy_status];
     const crownItem = this.props.crownList[this.props.crown_diameter];
-    // const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
     const treeItem = await this.checkTreeSpecieValue();
 
     await this.props.obsUpdateSaveLocal(
-      // this.props.navigation,
       this.props.currentObs,
       this.props.currentAoiId,
       this.props.name,
-      treeItem, //this.props.tree_specie,
-      canopyItem, //this.props.canopy_status,
-      crownItem, //this.props.crown_diameter,
+      treeItem,
+      canopyItem,
+      crownItem,
       this.props.comment,
       this.props.position,
       this.props.images
     );
-    //console.debug('res await save local', res);
 
     await this.props.obsUpdateSaveServer(
-
-      this.props.currentObs.key, //this.props.currentObs,
+      this.props.currentObs.key,
       this.props.currentAoiId,
       this.props.currentGzId,
       this.props.name,
-      treeItem, //this.props.tree_specie,
-      canopyItem, //this.props.canopy_status,
-      crownItem, //this.props.crown_diameter,
+      treeItem,
+      canopyItem,
+      crownItem,
       this.props.comment,
       this.props.position,
       this.props.images,
@@ -157,9 +149,7 @@ class EditDataScreen extends Component {
       this.props.token,
       false
     );
-    // this.props.navigation.goBack('detaildata');
     this.goBackDetailData();
-    // this.props.navigation.navigate('detaildata');
   }
 
   renderButtons() {
@@ -213,11 +203,8 @@ class EditDataScreen extends Component {
         <View style={styles.containerForm}>
           <EditDataForm />
         </View>
-
         {this.renderMap()}
-
         {this.renderButtons()}
-
       </View>
     );
   }

@@ -134,12 +134,8 @@ async function uploadImage(token, img, obsKey, latitude, longitude) {
       compass: img.compass,
       url: data.url
     });
-    //
-    console.debug('response imatge', response);
-    console.debug('${RNFS.ExternalDirectoryPath}${data.url}', `${RNFS.ExternalDirectoryPath}/pictures/static${data.url}`);
+
     let wr = await RNFS.writeFile(`${RNFS.ExternalDirectoryPath}/pictures${data.url}`, contents, 'base64');
-    //let wr = await RNFS.copyFile(img.url, `${RNFS.ExternalDirectoryPath}/pictures/static${data.url}`);
-    console.debug('---------------------------------------------------------------uploadimage....');
     return ({
       key: response.data.key,
       url: data.url
@@ -150,9 +146,6 @@ async function uploadImage(token, img, obsKey, latitude, longitude) {
 async function updateImages(dispatch, token, obsKey, aoiId, gzId, images, position) {
 
   try {
-    console.debug('updateImages aoiId', aoiId);
-    // console.debug('position', position);
-
     const newImageList = [];
     let newImage = {};
     const newImgKeys = [];
@@ -169,17 +162,9 @@ async function updateImages(dispatch, token, obsKey, aoiId, gzId, images, positi
         newImgKeys.push(img.key);
       }
     }
-    console.debug('newImageList', newImageList);
-
-    //currentObs.images = newImageList;
-    // dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: UPDATE_OBS_IMAGES, payload: {obsKey, image_aoiId: aoiId, gzId, newImageList: newImageList} });
-    // dispatch({ type: CHECK_STATE, payload: {} });
-
     return {success: true, newImgKeys};
-
   }catch(error) {
-
     console.debug('error:', error);
     return {success: false, newImgKeys: []};
   }
@@ -204,7 +189,6 @@ async function updateData(token, obsKey, name, tree_specie, crown_diameter, cano
           longitude: position.longitude,
           latitude: position.latitude,
           compass: compass//,
-          //images: currentObs.newImgKeys//TODO
       }
       if(images.success){
         newData.images = images.newImgKeys;
@@ -233,12 +217,9 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
     let new_tree_specie = { ...tree_specie };
 
     try {
-
       let successImages = await updateImages(dispatch, token, currentObsKey, currentAoiId, currentGzId, images, position);
       let successData = await updateData(token, currentObsKey, name, tree_specie, crown_diameter, canopy_status, comment, position, compass, successImages);
-
       const sync = (successData.success && successImages.success ? false : true);
-
 
       if(successData.success && tree_specie.key.toString().startsWith('new_')){
         dispatch({ type: ADD_NEW_TREE_SPECIE, payload: {key: successData.data.tree_specie, name: tree_specie.name} });
@@ -266,8 +247,6 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
         const message = `"${name}" ${strings.obshasbeensync}`;
         Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
       }
-
-
     } catch(e) {
       console.debug(e);
       //TODO show toast??
@@ -278,8 +257,8 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
   };
   thunk.interceptInOffline = true;
   thunk.meta = {
-    retry: true, // By passing true, your thunk will be enqueued on offline mode
-    dismiss: [] // Array of actions which, once dispatched, will trigger a dismissal from the queue
+    retry: true,
+    dismiss: []
   }
   return thunk;
 };
@@ -308,7 +287,6 @@ export const obsUpdateSaveLocal = ( currentObs, currentAoiId, name, tree_specie,
 
     dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: SET_SAVING_STATUS, payload: false });
-    // dispatch({ type: OBS_SAVE_SUCCESS, payload: {} });
 
   };
   return thunk;
@@ -431,13 +409,11 @@ export const obsCreateSaveLocal = ( obsKey, name, tree_specie, crown_diameter, c
     newObs.compass = compass;
     newObs.toSync = true;//TODO revisar
 
-
     dispatch({ type: ADD_NEW_OBS, payload: {newObs, currentAoiId} });
     dispatch({ type: ADD_OBS_AOI, payload: newObs });
 
     dispatch({ type: CHECK_STATE, payload: {} });
     dispatch({ type: SET_SAVING_STATUS, payload: false });
-    // dispatch({ type: OBS_SAVE_SUCCESS, payload: {} });
 
   };
   return thunk;
