@@ -23,7 +23,7 @@ class Slides extends Component {
 			>
 				<Text style={slideTitleStyle}>{slide.title}</Text>
 				<Text style={slideTextStyle}>{slide.text}</Text>
-				<Image resizeMode='contain' style={{ width: '140%', flex: 10, marginTop: 5 }} source={slide.imgFile} />
+				<Image resizeMode='contain' style={{ width: '140%', flex: 8, marginTop: 5 }} source={slide.imgFile} />
 			</View>
 		);
 	}
@@ -118,7 +118,9 @@ const styles = {
 		fontWeight: 'bold',
 		padding: 5,
 		flex: 1,
-		color: '#ffffff'
+		color: '#ffffff',
+		width: '100%', 
+		textAlign: 'center'
 	},
 	slideTextStyle: {
 		fontSize: 14,

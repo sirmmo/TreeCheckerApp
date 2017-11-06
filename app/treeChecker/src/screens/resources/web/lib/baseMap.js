@@ -16,6 +16,7 @@ function sendDataToReact(data) {
 
 var mymap = L.map('mapid');
 var controlLayers = null;
+var geojsonLayer = null;
 var overlays = {};
 
 mymap.on('load', (e) => {
@@ -105,7 +106,7 @@ function addMapEvents() {
 
 function addMapControls() {
 
-  controlLayers = new L.control.layers({}, overlays, {hideSingleBase: true});
+  controlLayers = new L.control.layers({}, overlays, {sortLayers: true, hideSingleBase: true});
   controlLayers.addTo(mymap);
 
   L.control.locate().addTo(mymap);
@@ -151,7 +152,14 @@ function addMarkers(data) {
 
   }
 
-  let geojsonLayer = L.geoJSON(geojson, {
+  if(geojsonLayer != null) {
+
+    controlLayers.removeLayer(geojsonLayer);
+    mymap.removeLayer(geojsonLayer);
+
+  }
+
+  geojsonLayer = L.geoJSON(geojson, {
 
     pointToLayer: function (feature, latlng) {
 
@@ -165,8 +173,8 @@ function addMarkers(data) {
     }
 
   });
+  
   geojsonLayer.addTo(mymap);
-
   controlLayers.addOverlay(geojsonLayer, 'Own data');
 
 }

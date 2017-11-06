@@ -23,7 +23,6 @@ import { CardSection, MyListItem, Card, Header, MySpinner } from '../components/
 class EditDataScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
-    title: 'Edit Data Observation',
     tabBarVisible: false
     // headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });

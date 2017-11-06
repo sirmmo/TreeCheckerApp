@@ -113,13 +113,15 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: 'white',
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    width: '100%'
   },
   subtitle: {
     fontSize: 30,
     color: 'white',
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    width: '100%'
   },
   button: {
     marginTop: 50

@@ -15,6 +15,7 @@ import {
 	MenuScreen,
 	ProfileScreen
 } from '../screens';
+import { strings } from '../screens/strings.js';
 
 const InitFlow = StackNavigator({
 	login: { screen: LoginScreen }
@@ -31,7 +32,8 @@ const MainFlow = StackNavigator({
 }, {
 	navigationOptions: {
 		headerTintColor: '#ffffff',
-		headerStyle: { backgroundColor: '#4CAF50' }
+		headerStyle: { backgroundColor: '#4CAF50' },
+		headerTitleStyle: {width: '80%'},
 	}
 });
 
@@ -66,9 +68,10 @@ const Menu = StackNavigator({
 }, {
 	mode: 'modal',
 	navigationOptions: {
-		title: 'Menu',
+		title: `${strings.menu}`,
 		headerTintColor: '#ffffff',
-		headerStyle: { backgroundColor: '#4CAF50' }
+		headerStyle: { backgroundColor: '#4CAF50' },
+		headerTitleStyle: {width: '80%'},
 	}
 });
 

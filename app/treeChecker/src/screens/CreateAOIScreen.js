@@ -25,7 +25,7 @@ class CreateAOIScreen extends Component {
 	state = { isValid:false, aoiName:"", isDownloading:false };
 
 	static navigationOptions = ({ navigation, screenProps }) => ({
-		title: 'Create AOI (1/2)',
+		title: `${strings.createAOI1}`,
 		//headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
 		tabBarVisible: false
 	});
