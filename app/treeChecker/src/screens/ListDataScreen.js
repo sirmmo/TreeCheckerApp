@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component } from 'react';
 import {
   View,
@@ -12,29 +10,26 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import Toast from 'react-native-toast-native';
 import { ProgressDialog } from 'react-native-simple-dialogs';
+
 import { strings } from './strings.js';
 import { refreshSelectedObs, obsUpdateSaveServer, obsCreateSaveServer, deleteObsServer } from '../actions';
-import { CardSection, MyListItem, Card } from '../components/common';
+import { MyListItem } from '../components/common';
 
 class ListDataScreen extends Component {
-
-  state = { showSyncDialog: false };
 
   static navigationOptions = ({ navigation, screenProps }) => ({
     title: `${strings.dataTabName}`,
     headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
 
+  state = { showSyncDialog: false };
+
   onPressFile(item) {
-    console.debug('onPressFile item', item);
     this.props.refreshSelectedObs(item);
     this.props.navigation.navigate('detaildata', { originScreen: 'listdata' });
   }
 
   onPressSync(item) {
-    console.debug('onPressFile item', item);
-    console.debug('currentAoiId', this.props.currentAoi);
-
     if (this.props.isConnected && item.toSync) {
       const key = item.key.toString();
       if (key.startsWith('new_')) {
@@ -94,20 +89,15 @@ class ListDataScreen extends Component {
   }
 
   goToPressed(item) {
-
     this.props.navigation.navigate('map', { action: 'goTo', latitude: item.position.latitude, longitude: item.position.longitude });
-
   }
 
   _renderItem({ item }) {
-    console.debug('renderitem', item);
-
     let colorSync = '#c2c2c2';
-    //let colorText = '#141823';
     let textStyle = styles.labelName;
     let colActions = [];
-    colActions.push(<Icon name='file-text-o' type='font-awesome' onPress={this.onPressFile.bind(this, item)} />);
-    colActions.push(<Icon name='map-marker' type='font-awesome' onPress={this.goToPressed.bind(this, item)}/> );
+    colActions.push(<Icon name='file-text-o' type='font-awesome' key={`${item.key}_file`} onPress={this.onPressFile.bind(this, item)} />);
+    colActions.push(<Icon name='map-marker' type='font-awesome' key={`${item.key}_marker`} onPress={this.goToPressed.bind(this, item)}/> );
 
     if (item.toSync && item.toSync === true) {
       const key = item.key.toString();
@@ -121,10 +111,8 @@ class ListDataScreen extends Component {
       }
     }
 
-    //const enable = (item.toSync && item.toSync === true ? true : false);
     return (
-
-      <MyListItem keyExtractor={(item, index) => item.key}>
+      <MyListItem keyExtractor={(myitem, myindex) => myitem.key}>
         <View style={styles.colName}>
           <Text style={textStyle} onPress={this.onPressFile.bind(this, item)}> {item.name} </Text>
         </View>
@@ -135,7 +123,7 @@ class ListDataScreen extends Component {
           <Icon
             name='sync'
             color={colorSync}
-            size= {28}
+            size={28}
             onPress={this.onPressSync.bind(this, item)}
           />
         </View>
@@ -144,27 +132,22 @@ class ListDataScreen extends Component {
   }
 
   isEmpty(obj) {
-      for(let key in obj) {
-          if(obj.hasOwnProperty(key))
+      for (let key in obj) {
+          if (obj.hasOwnProperty(key))
               return false;
       }
       return true;
   }
 
   renderDataList() {
-    // console.debug('renderDataList this.props.currentAoi.obs', this.props.currentAoi.obs);
-    // console.debug(_.values(this.props.currentAoi.obs));
     if (this.isEmpty(this.props.currentAoi.obs)) {
       return (
-
-
         <View style={styles.containerWarning}>
           <View style={styles.warning}>
             <Icon name='info' color='#757575' size={32} containerStyle={{ marginRight: 8 }} />
             <Text style={styles.labelName}>{strings.infoAddMessage}</Text>
           </View>
         </View>
-
       );
     }
     return (

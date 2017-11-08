@@ -27,15 +27,21 @@ class EditDataForm extends Component {
   state = {
     showModal: false,
     item: {},
-    //treeName: this.props.treeSpeciesList[this.props.tree_specie].name, //'',
     treeList: Object.values(this.props.treeSpeciesList), //[]
   };
 
   componentDidMount() {
-    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
     this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: this.props.treeSpeciesList[this.props.tree_specie].name });
   }
 
+  onPressDeleteImage() {
+    const { item } = this.state;
+    // console.debug('deleteimage item', item);
+    const imgArray = [...this.props.images];
+    _.remove(imgArray, item);
+    this.props.obsUpdate({ prop: 'images', value: imgArray })
+    this.setState({ showModal: false });
+  }
 
   _renderImageItem = ({ item }) => {
     const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
@@ -54,33 +60,23 @@ class EditDataForm extends Component {
     );
   }
 
-  onPressDeleteImage() {
-    const { item } = this.state;
-    // console.debug('deleteimage item', item);
-    const imgArray = [...this.props.images];
-    _.remove(imgArray, item);
-    this.props.obsUpdate({ prop: 'images', value: imgArray })
-    this.setState({ showModal: false });
-  }
-
   async addPicture() {
     const options = {
       storageOptions: {
         skipBackup: true,
         path: 'images',
         noData: true
-        // path: RNFS.DocumentDirectoryPath
       }
     };
 
     ImagePicker.showImagePicker(options, (response) => {
 
       if (response.didCancel) {
-        console.debug('User cancelled image picker');
+        //console.debug('User cancelled image picker');
       } else if (response.error) {
-        console.debug('ImagePicker Error: ', response.error);
+        //console.debug('ImagePicker Error: ', response.error);
       } else if (response.customButton) {
-        console.debug('User tapped custom button: ', response.customButton);
+        //console.debug('User tapped custom button: ', response.customButton);
       } else {
         RNSimpleCompass.start(3, (degree) => {
           RNSimpleCompass.stop();
@@ -91,7 +87,6 @@ class EditDataForm extends Component {
             key: `new_${response.fileName}`,
             compass: degree,
             type: response.type
-            //data: `data:image/jpeg;base64,${response.data}`
           });
           this.props.obsUpdate({ prop: 'images', value: imgArray })
         }, err => console.debug('error compass', err));
@@ -117,7 +112,7 @@ class EditDataForm extends Component {
           data={this.props.images}
           extraData={this.props.images}
           horizontal
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={(item) => item.key}
           renderItem={this._renderImageItem}
         />
       </CardSectionCol>
@@ -141,21 +136,19 @@ class EditDataForm extends Component {
     );
   }
 
+  onPressTreeSpecie(key, name) {
+    this.props.obsUpdate({ prop: 'tree_specie', value: key });
+    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: name });
+    this.setState({ treeName: name })
+  }
 
   findTreeSpecie(treeName) {
     if (treeName === '') {
       return [];
     }
-
     const { treeList } = this.state;
     const regex = new RegExp(`${treeName.trim()}`, 'i');
     return treeList.filter(tree => tree.name.search(regex) >= 0);
-  }
-
-  onPressTreeSpecie(key, name) {
-    this.props.obsUpdate({ prop: 'tree_specie', value: key });
-    this.props.obsUpdate({ prop: 'tmp_treeSpecieName', value: name });
-    this.setState({ treeName: name })
   }
 
   onChangeTextTreeSpecie(text) {
@@ -164,18 +157,14 @@ class EditDataForm extends Component {
   }
 
   renderForm() {
-    // this.setState('treeName', this.props.treeSpeciesList[this.props.tree_specie].name);
-    // this.setState('treeList', Object.values(this.props.treeSpeciesList));
-
-    // const { treeName } = this.state;
     const treeName = this.props.tmp_treeSpecieName;
     const treeList = this.findTreeSpecie(treeName);
     const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
     return(
-      <View style={{width: '100%'}}>
+      <View style={{ width: '100%' }}>
 
-            <CardSectionCol style={{flex: 1}}>
+            <CardSectionCol style={{ flex: 1 }}>
               <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
               <FormInput
                 underlineColorAndroid='#8BC34A'
@@ -194,9 +183,7 @@ class EditDataForm extends Component {
                     inputContainerStyle={{ borderWidth: 0}}
                     listContainerStyle={{ zIndex: 1 }}
                     data={treeList.length === 1 && comp(treeName, treeList[0].name) ? [] : treeList}
-                    //onChangeText={text => this.setState({ treeName: text })}
                     onChangeText={text => this.onChangeTextTreeSpecie(text)}
-                    //onChangeText={value => this.props.obsUpdate({ prop: 'tree_specie', value })}
                     renderItem={({ key, name }) => (
                      <TouchableOpacity onPress={() => this.onPressTreeSpecie(key, name)}>
                        <Text >
@@ -208,18 +195,18 @@ class EditDataForm extends Component {
             </CardSectionCol>
 
             <View style={{ flexDirection: 'row', paddingRight: 10, paddingLeft: 25 }}>
-              <CardSectionCol style={{flex: 1}}>
+              <CardSectionCol style={{ flex: 1 }}>
                 <Text style={styles.labelName}>{strings.crown}</Text>
                 {this.renderPicker(this.props.crownList, 'crown_diameter', this.props.crown_diameter)}
               </CardSectionCol>
 
-              <CardSectionCol style={{flex: 1}}>
+              <CardSectionCol style={{ flex: 1 }}>
                 <Text style={styles.labelName}>{strings.canopy}</Text>
                 {this.renderPicker(this.props.canopyList, 'canopy_status', this.props.canopy_status)}
               </CardSectionCol>
             </View>
 
-            <CardSectionCol style={{flex: 1}}>
+            <CardSectionCol style={{ flex: 1 }}>
               <FormLabel labelStyle={styles.labelName} >{strings.comment}</FormLabel>
               <FormInput
                 multiline
@@ -230,7 +217,6 @@ class EditDataForm extends Component {
                 onChangeText={value => this.props.obsUpdate({ prop: 'comment', value })}
               />
             </CardSectionCol>
-
             {this.renderImagesSection()}
       </View>
     );
@@ -277,7 +263,6 @@ const styles = StyleSheet.create({
   containerScroll: {
     marginBottom: 2,
     flex: 1
-    // maxHeight: '50%'
   },
   paddingCol: {
     paddingRight: 10,

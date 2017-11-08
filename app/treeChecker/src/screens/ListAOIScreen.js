@@ -8,60 +8,52 @@ import {
   StyleSheet,
   FlatList,
 } from 'react-native';
-import { Button, Icon, Badge } from 'react-native-elements';
+import { Icon, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
 import Toast from 'react-native-toast-native';
 import _ from 'lodash';
 
-import { aoiListFetch, refreshSelectedAoi, deleteAOI } from '../actions';
-import { MySpinner, CardSection, MyListItem } from '../components/common';
+import { aoiListFetch, refreshSelectedAoi, deleteAOI, setLoadingMap, setMapAction } from '../actions';
+import { MySpinner, MyListItem } from '../components/common';
 import { strings } from './strings.js';
 
 
 class ListAOIScreen extends Component {
 
-  state = { showDeleteModal: false, key: '' };
-
-  static navigationOptions = ({ navigation, screenProps }) => ({
+  static navigationOptions = ({ navigation }) => ({
     title: `${strings.aoiList}`,
-    // headerRight: <Button icon={{name: 'menu'}} onPress={() => navigation.navigate('menu') } />,
-    headerRight: <Icon name='menu' size={30} color='#ffffff' iconStyle={{padding: 4, marginRight: 5}} onPress={() => navigation.navigate('menu') } />
-    // tabBarVisible: false
+    headerRight: <Icon name='menu' size={30} color='#ffffff' iconStyle={{ padding: 4, marginRight: 5 }} onPress={() => navigation.navigate('menu') }/>
   });
 
+  state = { showDeleteModal: false, key: '' };
 
   componentDidMount() {
     const { token, currentGzId, allAoisList } = this.props;
-    console.log('componentDidMount');
     this.props.aoiListFetch({ token, currentGzId, allAoisList });
   }
 
   onPressItem(item) {
-    // console.log('OnPressItem...');
-    // console.log(item);
     this.props.refreshSelectedAoi(item);
-    this.props.navigation.navigate('mapflow', { action: 'initMap' });
+    this.props.setLoadingMap(true);
+    this.props.setMapAction({ action: 'initMap' });
+    this.props.navigation.navigate('mapflow');
   }
 
   onDeletePressed() {
-
     const { token } = this.props;
     const { key } = this.state;
     this.props.deleteAOI({ token, key });
     this.setState({ showDeleteModal: false, key: '' });
-
-
   }
 
   _renderItem({ item }) {
-    console.debug('item', item);
-    console.debug('item.length', item.length);
     return (
       <MyListItem keyExtractor={(item, index) => item.key}>
         <View style={styles.colName}>
-            <Text style={styles.name}
-              onPress = { this.onPressItem.bind(this, item)}
+            <Text
+              style={styles.name}
+              onPress={this.onPressItem.bind(this, item)}
             >
             {item.name}
             </Text>
@@ -71,11 +63,10 @@ class ListAOIScreen extends Component {
               style={styles.icon}
               name='map-marker'
               type='font-awesome'
-              //onPress={this.onDeletePressed.bind(this, item.key)}
             />
             <Text>:</Text>
             <Badge
-              containerStyle={{ backgroundColor: '#388E3C'}}
+              containerStyle={{ backgroundColor: '#388E3C' }}
               value={Object.keys(item.obs).length}
             />
         </View>
@@ -100,7 +91,6 @@ class ListAOIScreen extends Component {
   }
 
   renderDataList() {
-
     if (this.props.loading) {
       return <MySpinner size="large" />;
     }
@@ -108,10 +98,12 @@ class ListAOIScreen extends Component {
     const { currentAoiList } = this.props;
     if (Object.keys(currentAoiList).length === 0) {
       return (
-        <CardSection>
-          <Icon name='warning' color='#757575' />
-          <Text style={styles.labelName}>No AOIs added</Text>
-        </CardSection>
+        <View style={styles.containerWarning}>
+          <View style={styles.warning}>
+            <Icon name='info' color='#757575' size={32} containerStyle={{ marginRight: 8 }} />
+            <Text style={styles.name}>{strings.noAOIS}</Text>
+          </View>
+        </View>
       );
     }
     return (
@@ -200,7 +192,7 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   colName: { flex: 2 },
-  colRight: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end'},
+  colRight: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end' },
   colActions: {
     flex: 1,
     flexDirection: 'row',
@@ -212,7 +204,31 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
-  }
+  },
+  containerWarning: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  warning: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingRight: 20,
+    paddingLeft: 20,
+    width: '75%',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderRadius: 2,
+    borderColor: '#ddd',
+    borderBottomWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+    flexDirection: 'row'
+  },
 });
 
 const mapStateToProps = ({ geoZonesData, auth, network }) => {
@@ -225,7 +241,9 @@ const mapStateToProps = ({ geoZonesData, auth, network }) => {
 const myListAOIScreen = connect(mapStateToProps, {
   aoiListFetch,
   refreshSelectedAoi,
-  deleteAOI
+  deleteAOI,
+  setLoadingMap,
+  setMapAction
 })(ListAOIScreen);
 
 export { myListAOIScreen as ListAOIScreen };

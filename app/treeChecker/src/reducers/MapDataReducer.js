@@ -5,25 +5,24 @@ import {
   OBS_SELECTED,
   ADD_OBS_AOI,
   UPDATE_OBS_AOI,
-  SET_URL_MAP_OFFLINE,
+  SET_MAP_ACTION,
   REFRESH_CURRENT_AOI,
   OBS_SELECTED_BY_INDEX,
   SET_SYNC_STATUS,
   CHECK_STATE,
   UPDATE_CURRENTAOI_TOSYNC,
   UPDATE_INDEX_OBS_AOI,
-  // OBS_DELETE_AOI,
+  SET_LOADING_MAP,
   OBS_DELETE,
   OBS_DELETE_LOCAL
 } from '../actions/types';
 
 const INITIAL_STATE = {
-  //loading: true,
-  //obsList: [], //Llistat de GZ
+  loadingMap: true,
   currentAoi: {},
   currentAoiId: '',
   currentObs: {},
-  urlMapOffline: '',
+  mapAction: { action: '' },
   serverStarted: false,
   server: {},
   synchronizing: false
@@ -40,23 +39,21 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state };
 
     case SET_SYNC_STATUS:
-      // console.log(action.payload);
       return { ...state, synchronizing: action.payload };
 
+    case SET_LOADING_MAP:
+      return { ...state, loadingMap: action.payload };
+
     case REFRESH_CURRENT_AOI:
-      // console.debug(state);
       return { ...state, currentAoi: action.payload, currentAoiId: action.payload.key };
 
-    case SET_URL_MAP_OFFLINE:
-      // console.log('SET_URL_MAP_OFFLINE');
-      return { ...state, urlMapOffline: action.payload.urlMapOffline, serverStarted: action.payload.serverStarted, server: action.payload.server };
+    case SET_MAP_ACTION:
+      return { ...state, mapAction: { action: action.payload.action, longitude: action.payload.longitude, latitude: action.payload.latitude } };
 
     case AOI_ID_SELECTED:
-      // console.log(action.payload);
       return { ...state, currentAoiId: action.payload };
 
     case OBS_SELECTED:
-      // console.log(action.payload);
       return { ...state, currentObs: action.payload };
 
     case OBS_SELECTED_BY_INDEX:
@@ -78,7 +75,7 @@ export default (state = INITIAL_STATE, action) => {
             }
           };
     }
-    // case OBS_DELETE_AOI: {
+
     case OBS_DELETE: {
           const { key } = action.payload;
           const newObs = { ...state.currentAoi.obs };
@@ -94,9 +91,7 @@ export default (state = INITIAL_STATE, action) => {
           const { key } = action.payload;
           const newObs = { ...state.currentAoi.obs };
           const deletedObs = { ...newObs[key], key: `deleted_${key}`, toSync: true };
-          //deletedObs.key = `deleted_${deletedObs.key}`;
           delete newObs[key];
-
           return { ...state,
                   currentAoi: {
                     ...state.currentAoi,
@@ -119,7 +114,6 @@ export default (state = INITIAL_STATE, action) => {
             };
     case UPDATE_CURRENTAOI_TOSYNC: {
       const { sobsKey, saoiId, sync, tree_specie } = action.payload;
-      // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
       if (state.currentAoiId === saoiId) {
         return { ...state,
                 currentAoi: {
@@ -149,9 +143,6 @@ export default (state = INITIAL_STATE, action) => {
                   }
                 }
               };
-
-    // case offlineActionTypes.FETCH_OFFLINE_MODE:
-    //   return { ...state, currentAoiList: state.allAoisList.get(state.currentGzId) };
 
     default:
       return state;

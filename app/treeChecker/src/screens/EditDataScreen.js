@@ -43,6 +43,15 @@ class EditDataScreen extends Component {
     this.initServer();
   }
 
+  setWebView(webview) {
+    this.webview = webview;
+  }
+
+  sendInitParams() {
+    const { position } = this.props;
+    this.webview.sendJSON({ pos: position });
+  }
+
   receiveServerData(json) {
     if (json.webInit) {
       this.sendInitParams();
@@ -52,40 +61,19 @@ class EditDataScreen extends Component {
     }
   }
 
-  sendInitParams() {
-    const {position} = this.props;
-    this.webview.sendJSON({ pos: position });
-  }
-
-  setWebView(webview) {
-    this.webview = webview;
-  }
-
   subscribeMessages() {
     const { messagesChannel } = this.webview;
-    messagesChannel.on('json', (json) => this.receiveServerData(json) );
+    messagesChannel.on('json', (json) => this.receiveServerData(json));
   }
 
   initServer() {
     const myserver = new StaticServer(8080, RNFS.ExternalDirectoryPath);
-    // Start the server
     myserver.start().then((url) => {
-      console.debug('Serving at URL' + url);
       this.webview.sendJSON({ urlOffline: url });
     });
   }
 
   goBackDetailData() {
-    // const resetAction = NavigationActions.reset({
-    //   index: 1,
-    //   actions: [
-    //     //NavigationActions.navigate({ routeName: 'mainflow' }),
-    //     NavigationActions.navigate({ routeName: 'mapflow' }),
-    //     NavigationActions.navigate({ routeName: 'detaildata' })
-    //   ]
-    // });
-    // this.props.navigation.dispatch(resetAction);
-
     const backAction = NavigationActions.back({
       key: 'detaildata'
     })
@@ -95,7 +83,6 @@ class EditDataScreen extends Component {
 
   async addNewTreeSpecie() {
     const item = { key: `new_${Date.now()}`, name: this.props.tmp_treeSpecieName };
-    console.debug('addNewTreeSpecie', item);
     this.props.addNewTreeSpecie(item);
     return item;
   }
@@ -181,15 +168,14 @@ class EditDataScreen extends Component {
   }
 
   renderMap() {
-    console.debug('rendermap');
     return (
       <View style={styles.containerMap}>
-        <CardSection style={{backgroundColor: '#8BC34A'}}>
+        <CardSection style={{ backgroundColor: '#8BC34A' }}>
         <Text>{strings.moveMap}</Text>
         </CardSection>
         <WebView
           source={{ uri: 'file:///android_asset/web/centerPin.html' }}
-          ref={ (webview) => { this.setWebView(webview); } }
+          ref={(webview) => { this.setWebView(webview); }}
           style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
         />
       </View>
@@ -221,7 +207,6 @@ const styles = StyleSheet.create({
   containerButtons: {
     paddingTop: 15,
     flex: 1,
-    //minHeight: '15%',
     justifyContent: 'center',
     flexDirection: 'row'
   },
@@ -259,7 +244,6 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
   const { currentObs, currentAoiId } = mapData;
   const { currentGzId } = geoZonesData;
   const { token } = auth;
-  // const { isConnected } = network;
   const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images, isSaving } = obsData;
 
   return {

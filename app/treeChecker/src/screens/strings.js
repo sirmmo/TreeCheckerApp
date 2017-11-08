@@ -3,7 +3,12 @@ import LocalizedStrings from 'react-native-localization';
 export const strings = new LocalizedStrings({
  'en': {
 
+   Welcome: 'Welcome',
+   start: 'START',
+
    username: 'username',
+   Username: 'Username',
+   Email: 'Email',
    Username: 'Username',
    password: 'password',
    Password: 'Password',
@@ -20,6 +25,7 @@ export const strings = new LocalizedStrings({
    deleteAOI: 'Delete AOI',
    uploadAOIerror: 'Problem uploading to the server. The AOI may not have been created correctly',
    funcWithConnection: 'Functionality only available with connection',
+   noAOIS: 'No AOIs added yet',
 
    myObservations: 'MY OBSERVATIONS',
    itemAlreadySync: 'Observation already up to date',

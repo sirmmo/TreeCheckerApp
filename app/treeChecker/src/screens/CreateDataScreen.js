@@ -2,41 +2,34 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
 import {
   View,
-  Text,
   StyleSheet,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import { NavigationActions } from 'react-navigation';
-// import LocalizedStrings from 'react-native-localization';
 import RNSimpleCompass from 'react-native-simple-compass';
+
 import EditDataForm from '../components/EditDataForm.js';
-import { obsUpdate, obsResetForm, obsCreateSaveLocal, obsCreateSaveServer, addNewTreeSpecie } from '../actions';
+import { obsUpdate, obsCreateSaveLocal, obsCreateSaveServer, addNewTreeSpecie } from '../actions';
 import { strings } from './strings.js';
-import { CardSection, MyListItem, Card, Header } from '../components/common';
+import { Header } from '../components/common';
 
 class CreateDataScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
     tabBarVisible: false
-    // headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
 
   componentDidMount() {
-    //console.debug(this.props);
     RNSimpleCompass.start(3, (degree) => {
-      console.debug('You are facing', degree);
       RNSimpleCompass.stop();
       this.props.obsUpdate({ prop: 'compass', value: degree })
     });
-    console.debug(this.props.position);
   }
 
   async addNewTreeSpecie() {
     const item = { key: `new_${Date.now()}`, name: this.props.tmp_treeSpecieName };
-    console.debug('addNewTreeSpecie', item);
     this.props.addNewTreeSpecie(item);
     return item;
   }
@@ -54,27 +47,20 @@ class CreateDataScreen extends Component {
 
     treeItem = await this.addNewTreeSpecie();
     return treeItem;
-
-    //return (typeof treeItem !== undefined ? treeItem : await this.addNewTreeSpecie());
   }
 
   async sendCreateSave() {
-
     const canopyItem = this.props.canopyList[this.props.canopy_status];
     const crownItem = this.props.crownList[this.props.crown_diameter];
-    //const treeItem = this.props.treeSpeciesList[this.props.tree_specie];
     const treeItem = await this.checkTreeSpecieValue();
-
     const newKey = `new_${Date.now()}`;
 
     await this.props.obsCreateSaveLocal(
-      // this.props.navigation,
-      // this.props.currentObs,
       newKey,
       this.props.name,
-      treeItem, //this.props.tree_specie,
-      canopyItem, //this.props.canopy_status,
-      crownItem, //this.props.crown_diameter,
+      treeItem,
+      canopyItem,
+      crownItem,
       this.props.comment,
       this.props.position,
       this.props.images,
@@ -83,13 +69,13 @@ class CreateDataScreen extends Component {
     );
 
     this.props.obsCreateSaveServer(
-      newKey, //this.props.currentObs.key, //this.props.currentObs,
+      newKey,
       this.props.currentAoiId,
       this.props.currentGzId,
       this.props.name,
-      treeItem, //this.props.tree_specie,
-      canopyItem, //this.props.canopy_status,
-      crownItem, //this.props.crown_diameter,
+      treeItem,
+      canopyItem,
+      crownItem,
       this.props.comment,
       this.props.position,
       this.props.images,
@@ -97,33 +83,15 @@ class CreateDataScreen extends Component {
       this.props.token,
       false
     );
-
-    // this.props.navigation.goBack('detaildata');
-    // this.props.navigation.navigate('listdata');
     this.goBackListData();
   }
 
   goBackListData() {
-
     const navigateAction = NavigationActions.back({
       key: 'listdata'
-      // routeName: 'listdata',
-      // params: { action: 'fromCreate'}
     })
     this.props.navigation.dispatch(navigateAction);
     this.props.navigation.goBack(null);
-    // this.props.navigation.goBack('detaildata');
-
-
-    // const resetAction = NavigationActions.reset({
-    //   index: 1,
-    //   actions: [
-    //     NavigationActions.navigate({ routeName: 'mainflow' }),
-    //     NavigationActions.navigate({ routeName: 'mapflow' })
-    //   ]
-    // });
-    // this.props.navigation.dispatch(resetAction);
-    // this.props.navigation.navigate('mapflow', { action: 'fromCreate' });
   }
 
   renderButtons() {
@@ -170,7 +138,6 @@ const styles = StyleSheet.create({
   containerButtons: {
     paddingTop: 15,
     flex: 1,
-    //minHeight: '15%',
   },
   rowButtons: {
     flexDirection: 'row',
@@ -189,7 +156,6 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
   const { currentAoiId } = mapData;
   const { currentGzId } = geoZonesData;
   const { token } = auth;
-  // const { isConnected } = network;
   const { name, tree_specie, tmp_treeSpecieName, crown_diameter, canopy_status, comment, position, images, isSaving, compass } = obsData;
 
   return {
@@ -213,11 +179,9 @@ const mapStateToProps = ({ mapData, obsData, auth, selectFormData, geoZonesData 
 
 const myCreateDataScreen = connect(mapStateToProps, {
   obsUpdate,
-  obsResetForm,
   obsCreateSaveLocal,
   obsCreateSaveServer,
   addNewTreeSpecie
-  // obsUpdateSaveLocal
 })(CreateDataScreen);
 
 export { myCreateDataScreen as CreateDataScreen };
