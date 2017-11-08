@@ -1,6 +1,8 @@
 
 import axios from 'axios';
 import RNFS from 'react-native-fs';
+import Toast from 'react-native-toast-native';
+import { strings } from '../screens/strings.js';
 
 import {
   USERNAME_CHANGED,
@@ -62,7 +64,16 @@ export default function authMiddleware({ dispatch, getState }) {
             return refreshToken(dispatch, state).then(() => {
               next(action)
             }).catch( err => {
-              //TODO fer un show toast recomanant fer log out i log in again
+              const style = {
+                backgroundColor: '#ddD32F2F',
+                color: '#ffffff',
+                fontSize: 15,
+                borderWidth: 5,
+                borderRadius: 80,
+                fontWeight: 'bold'
+              }
+              const message = strings.errorRefreshingToken;
+              Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
             });
         }
       }

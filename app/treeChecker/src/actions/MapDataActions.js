@@ -238,11 +238,20 @@ export const obsUpdateSaveServer = ( currentObsKey, currentAoiId, currentGzId, n
         Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
       }
     } catch(e) {
-      console.debug(e);
-      //TODO show toast
       dispatch({ type: UPDATE_OBS_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sgzId: currentGzId, sync: true, tree_specie: new_tree_specie} });
       dispatch({ type: UPDATE_CURRENTAOI_TOSYNC, payload: {sobsKey: currentObsKey, saoiId: currentAoiId, sync: true, tree_specie: new_tree_specie} });
       if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
+      const style = {
+        backgroundColor: '#ddD32F2F',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 5,
+        borderRadius: 80,
+        fontWeight: 'bold',
+        yOffset: 40
+      }
+      const message = `"${name}" ${strings.obshasnotbeensync}`;
+      Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
     }
   };
   thunk.interceptInOffline = true;
@@ -431,8 +440,18 @@ export const deleteObsServer = ( deleted_obsKey, name, currentAoiId, currentGzId
         }
       };
     } catch(e) {
-      //TODO show toast
       if ( fromListDataScreen ) dispatch({ type: SET_SYNC_STATUS, payload: false });
+      const style = {
+        backgroundColor: '#ddD32F2F',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 5,
+        borderRadius: 80,
+        fontWeight: 'bold',
+        yOffset: 40
+      }
+      const message = `"${name}" ${strings.obshasnotbeendeleted}`;
+      Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
     }
   };
   thunk.interceptInOffline = true;

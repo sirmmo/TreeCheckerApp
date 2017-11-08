@@ -70,39 +70,42 @@ export const downloadTiles = ({ aoiName, bbox, zoomLevel, navigation, token, cur
   async function thunk(dispatch) {
 
     var fetchQueue = getTileDownloadURLs(bbox, zoomLevel);
-
+    const style = {
+      backgroundColor: '#ddD32F2F',
+      color: '#ffffff',
+      fontSize: 15,
+      borderWidth: 5,
+      borderRadius: 80,
+      fontWeight: 'bold'
+    }
     dispatch({ type: UPDATE_TOTAL, payload: fetchQueue.length });
     dispatch({ type: SET_DOWNLOAD_STATUS, payload: true });
 
     for(var i=0, len=fetchQueue.length; i<len; ++i) {
 
       try {
-
         var data = fetchQueue[i];
-        console.log("Fetch: " + data.url);
         var url = data.url;
         var dirPath = `${RNFS.ExternalDirectoryPath}/tiles/${data.layerName}/${data.z}/${data.x}/`;
         var filePath = `${dirPath}${data.y}.png`;
 
         var exists = await RNFS.exists(dirPath);
         if(!exists) {
-
-          console.log("Creating dir: " + dirPath);
           await RNFS.mkdir(dirPath)
-
         }
 
         try {
           await RNFS.downloadFile({fromUrl: url, toFile: filePath}).promise;
-          console.log(url + " stored in " + filePath);
           dispatch({ type: UPDATE_PROGRESS });
         } catch(error) {
-          console.log(url + " KO1 " + error)
-          //TODO
+          //console.log(url + " KO1 " + error)
+          const message = strings.errordownloadtiles;
+          Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
         }
       } catch (error) {
-        console.log("--------- ERR: " + error);
-        //TODO
+        //console.log("--------- ERR: " + error);
+        const message = strings.errordownloadtiles;
+        Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
       }
 
     }
@@ -141,7 +144,6 @@ export const aoiListFetch = ({ token, currentGzId, allAoisList }) => {
             }
             allAoisList[currentGzId][aoi.key].obs = newObsList;
           } else {
-            //TODO: The following code can also be found in AuthActions:prefetchData, convert to a function
             let obsList = {};
             for(let o of aoi.obs){
               let imgList = {};
@@ -201,9 +203,18 @@ export const geoZonesFetch = (token) => {
       dispatch({ type: GEOZONES_FETCH_SUCCESS, payload: data.data });
       dispatch({ type: LOADING_GEOZONES_DATA, payload: false });
     } catch (error) {
-      //TODO mostrar un toast
-      //console.debug('Estat no actualitzat amb el servidor');
       dispatch({ type: LOADING_GEOZONES_DATA, payload: false });
+      const style = {
+        backgroundColor: '#dd8BC34A',
+        color: '#ffffff',
+        fontSize: 15,
+        borderWidth: 5,
+        borderRadius: 80,
+        fontWeight: 'bold',
+        yOffset: 40
+      }
+      const message = strings.gznotrefreshed;
+      Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
     }
   };
 };
@@ -266,12 +277,20 @@ export const deleteAOI = ({token, key}) => {
       if(response.status === 200) {
         dispatch({ type: AOI_DELETE, payload: key });
       } else {
-        //TODO show message error
+        const style = {
+          backgroundColor: '#ddD32F2F',
+          color: '#ffffff',
+          fontSize: 15,
+          borderWidth: 5,
+          borderRadius: 80,
+          fontWeight: 'bold'
+        }
+        const message = strings.aoinotdeleted;
+        Toast.show(message, Toast.LONG, Toast.BOTTOM, style);
       }
       dispatch({ type: LOADING_DATA, payload: false });
 
     } catch(e) {
-      //TODO show message error
       dispatch({ type: LOADING_DATA, payload: false });
     }
   };

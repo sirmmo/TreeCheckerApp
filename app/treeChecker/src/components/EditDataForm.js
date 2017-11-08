@@ -47,13 +47,16 @@ class EditDataForm extends Component {
     const img_uri = (item.uri ? item.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${item.url}` );
     return (
     <CardNative
-      containerStyle={{ backgroundColor: '#C8E6C9' }}
-      image={{ uri: img_uri }} >
+      containerStyle={{ elevation: 0, borderWidth: 0, backgroundColor: '#ffffff', paddingTop: 0, marginTop: 0 }}
+      image={{ uri: img_uri }}
+      imageStyle={{ paddingTop: 0, marginTop: 0 }}
+      >
       <Button
         buttonStyle={{ borderColor: '#D32F2F', borderWidth: 1 }}
-        backgroundColor='#C8E6C9'
+        backgroundColor='#ffffff'
         color='#D32F2F'
         onPress={() => this.setState({ showModal: !this.state.showModal, item })}
+        iconRight
         icon={{ name: 'trash', type: 'font-awesome', color: '#D32F2F' }}
         title={strings.delete}/>
     </CardNative>
