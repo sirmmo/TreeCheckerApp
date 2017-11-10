@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component } from 'react';
 import {
   View,
@@ -11,23 +9,21 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Button } from 'react-native-elements';
-// import LocalizedStrings from 'react-native-localization';
 import RNFS from 'react-native-fs';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
 import { NavigationActions } from 'react-navigation';
 
 import { CardSection } from '../components/common';
 import { strings } from './strings.js';
-import { deleteObsLocal, deleteObsServer } from '../actions';
+import { deleteObsLocal, deleteObsServer, setLoadingMap, setMapAction } from '../actions';
 
 class DetailDataScreen extends Component {
 
-  state = { showDeleteModal: false, item: {}, currentSlide: 0 };
-
   static navigationOptions = ({ navigation, screenProps }) => ({
     tabBarVisible: false
-    //headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
+
+state = { showDeleteModal: false, item: {}, currentSlide: 0 };
 
   onPressEdit() {
     this.props.navigation.navigate('editdata');
@@ -38,7 +34,6 @@ class DetailDataScreen extends Component {
     this.setState({ showDeleteModal: false })
     await this.props.deleteObsLocal(currentObs.key, currentAoiId);
     this.props.deleteObsServer(`deleted_${currentObs.key}`, currentObs.name, currentGzId, currentAoiId, token, false);
-    //this.props.navigation.navigate('listdata');
 
     const backAction = NavigationActions.back({
       key: 'listdata'
@@ -47,7 +42,7 @@ class DetailDataScreen extends Component {
     this.props.navigation.goBack(null);
   }
 
-  renderButtons(currentObs) {
+  renderButtons (currentObs) {
     return (
       <View style={styles.rowButtons}>
             <Button
@@ -71,11 +66,25 @@ class DetailDataScreen extends Component {
             <Button
               iconRight
               backgroundColor='#8BC34A'
-              onPress={() => this.props.navigation.navigate('map', { action: 'goTo', latitude: currentObs.position.latitude, longitude: currentObs.position.longitude })}
+              onPress={() => this.goToMap(currentObs)}
               icon={{ name: 'map', type: 'font-awesome' }}
               title={strings.goto} />
       </View>
     );
+  }
+
+  goToMap(currentObs) {
+    this.props.setLoadingMap(true);
+    this.props.setMapAction({ action: 'goTo', latitude: currentObs.position.latitude, longitude: currentObs.position.longitude });
+    const resetAction = NavigationActions.reset({
+      index: 2,
+      actions: [
+        NavigationActions.navigate({ routeName: 'gzflow' }),
+        NavigationActions.navigate({ routeName: 'aoiflow' }),
+        NavigationActions.navigate({ routeName: 'mapflow' })
+      ]
+    })
+    this.props.navigation.dispatch(resetAction);
   }
 
   renderComment(comment) {
@@ -113,7 +122,7 @@ class DetailDataScreen extends Component {
     const imgUri = (img.uri ? img.uri : `file://${RNFS.ExternalDirectoryPath}/pictures${img.url}` );
     return (
       <View
-        keyExtractor={(img) => img.key}
+        keyExtractor={(myimg) => myimg.key}
         style={styles.imgContStyle}
       >
         <Image style={styles.imgStyle} source={{ uri: imgUri }} />
@@ -162,9 +171,7 @@ class DetailDataScreen extends Component {
 	}
 
   render() {
-    console.debug('this.props', this.props);
     const { currentObs } = this.props;
-    // console.debug('currentObs', currentObs);
     return (
       <View style={styles.container}>
         <View style={styles.containerTop}>
@@ -245,11 +252,6 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 2,
     borderColor: '#ffffff',
-    // shadowColor: '#757575',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 2,
-    // elevation: 1,
   },
   labelHeader: {
     textAlign: 'center',
@@ -288,7 +290,9 @@ const mapStateToProps = ({ mapData, auth, geoZonesData }) => {
 
 const myDetailDataScreen = connect(mapStateToProps, {
   deleteObsLocal,
-  deleteObsServer
+  deleteObsServer,
+  setLoadingMap,
+  setMapAction
 })(DetailDataScreen);
 
 export { myDetailDataScreen as DetailDataScreen };

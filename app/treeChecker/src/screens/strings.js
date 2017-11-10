@@ -3,11 +3,16 @@ import LocalizedStrings from 'react-native-localization';
 export const strings = new LocalizedStrings({
  'en': {
 
+   Welcome: 'Welcome',
+   start: 'START',
+
    username: 'username',
    Username: 'Username',
+   Email: 'Email',
    password: 'password',
    Password: 'Password',
    connectionNeeded: 'Network connection needed',
+   errorRefreshingToken: 'An error ocurred while refreshing your session. Please, do log out and log in again to solve it',
 
    walk01: 'First of all choose your region of interest, among the available options.',
    walk02: '',
@@ -15,17 +20,22 @@ export const strings = new LocalizedStrings({
 
    regionOfInterest: 'Region of interest',
    go: 'GO',
+   gznotrefreshed: 'The data has not been refreshed with the server (Local data will be used)',
 
    selectAOItitle: 'Select your area of interest:',
    deleteAOI: 'Delete AOI',
    uploadAOIerror: 'Problem uploading to the server. The AOI may not have been created correctly',
    funcWithConnection: 'Functionality only available with connection',
+   noAOIS: 'No AOIs added yet',
+   aoinotdeleted: 'The AOI has not been deleted from the server',
+   errordownloadtiles: 'A problem ocurred while downloading the AOI, and the map could be not propperly stored for the offline use.',
 
    myObservations: 'MY OBSERVATIONS',
    itemAlreadySync: 'Observation already up to date',
    obshasbeensync: 'has been synchronized with the server',
+   obshasnotbeensync: 'has not been synchronized with the server',
    obshasbeendeleted: 'has been deleted from the server',
-
+   obshasnotbeendeleted: 'has not been deleted from the server',
 
    progressDialog: 'Progress Dialog',
    syncMessage: 'Synchronizing, please wait ...',

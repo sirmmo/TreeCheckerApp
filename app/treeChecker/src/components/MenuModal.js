@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, Modal } from 'react-native';
-// import Modal from 'react-native-modalbox';
+import { Text, Modal } from 'react-native';
 import { List, ListItem } from 'react-native-elements';
 import { strings } from '../screens/strings.js';
 
@@ -10,35 +9,27 @@ const MenuModal = ({ visible, onClosed, toProfile }) => {
     <Modal
      style={styles.modal}
      visible={visible}
-    //  isOpen={visible}
-    //  ref={"menu"}
-     //swipeToClose=true
-    //  backButtonClose
-    //  coverScreen
      onRequestClose={onClosed}
-    //  onOpened={this.onOpen}
-    //  onClosingState={this.onClosingState}>
     >
       <Text>Show Modal</Text>
      <List>
        <ListItem
           key='1'
           title={strings.yourprof}
-          leftIcon={{name: 'user', type: 'font-awesome'}}
+          leftIcon={{ name: 'user', type: 'font-awesome' }}
           onPress={toProfile}
-           />
+       />
        <ListItem
          key='2'
          title={strings.tutorial}
-         leftIcon={{name: 'info-circle', type: 'font-awesome'}}
-           />
+         leftIcon={{ name: 'info-circle', type: 'font-awesome' }}
+       />
        <ListItem
          key='3'
          title={strings.changeRegion}
-         leftIcon={{name: 'exchange', type: 'font-awesome'}}
-           />
+         leftIcon={{ name: 'exchange', type: 'font-awesome' }}
+       />
     </List>
-
    </Modal>
   );
 };

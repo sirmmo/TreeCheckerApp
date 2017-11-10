@@ -1,5 +1,4 @@
 import { TabNavigator, StackNavigator } from 'react-navigation';
-// import { withNetworkConnectivity } from 'react-native-offline';
 import {
 	LoginScreen,
 	WelcomeScreen,
@@ -21,19 +20,24 @@ const InitFlow = StackNavigator({
 	login: { screen: LoginScreen }
 });
 
-// const WalkFlow = StackNavigator({
-// 	walkthrough: { screen: WalkthroughScreen }
-// });
+const gzFlow = StackNavigator({
+	selectgz: { screen: SelectGZScreen }
+}, {
+	navigationOptions: {
+		headerTintColor: '#ffffff',
+		headerStyle: { backgroundColor: '#4CAF50' },
+		headerTitleStyle: { width: '80%' },
+	}
+});
 
-const MainFlow = StackNavigator({
-	selectgz: { screen: SelectGZScreen },
+const aoiFlow = StackNavigator({
 	listaoi: { screen: ListAOIScreen },
 	createaoi: { screen: CreateAOIScreen }
 }, {
 	navigationOptions: {
 		headerTintColor: '#ffffff',
 		headerStyle: { backgroundColor: '#4CAF50' },
-		headerTitleStyle: {width: '80%'},
+		headerTitleStyle: { width: '80%' },
 	}
 });
 
@@ -45,7 +49,6 @@ const MapFlow = TabNavigator({
 	swipeEnabled: false,
 	tabBarVisible: true,
 	tabBarPosition: 'top',
-	//lazy: true,
 	tabBarOptions: {
 		indicatorStyle: {
 			backgroundColor: '#b2ff59'
@@ -71,26 +74,16 @@ const Menu = StackNavigator({
 		title: `${strings.menu}`,
 		headerTintColor: '#ffffff',
 		headerStyle: { backgroundColor: '#4CAF50' },
-		headerTitleStyle: {width: '80%'},
+		headerTitleStyle: { width: '80%' },
 	}
 });
-
-// const Profile = StackNavigator({
-// 	profile: { screen: ProfileScreen }
-// }, {
-// 	mode: 'modal',
-// 	navigationOptions: {
-// 		title: 'Menu',
-// 		headerTintColor: '#ffffff',
-// 		headerStyle: { backgroundColor: '#4CAF50' }
-// 	}
-// });
 
 const Routes = {
   welcome: { screen: WelcomeScreen },
   initflow: { screen: InitFlow },
 	walkthrough: { screen: WalkthroughScreen },
-  mainflow: { screen: MainFlow },
+  gzflow: { screen: gzFlow },
+	aoiflow: { screen: aoiFlow },
   mapflow: { screen: MapFlow },
 	detaildata: { screen: DetailDataScreen },
 	editdata: { screen: EditDataScreen },
@@ -98,9 +91,5 @@ const Routes = {
 	menu: { screen: Menu },
 	profile: { screen: ProfileScreen }
 };
-
-// Routes = withNetworkConnectivity({
-// 	withRedux: true // It won't inject isConnected as a prop in this case
-// })(Routes);
 
 export default Routes;

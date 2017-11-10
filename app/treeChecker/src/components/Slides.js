@@ -1,38 +1,23 @@
 import React, { Component } from 'react';
 import { ViewPagerAndroid, View, Text, Image } from 'react-native';
-
 import { Button } from 'react-native-elements';
 
 class Slides extends Component {
 
 	state = { currentSlide: 0, textButton: 'Skip', buttonColor: '#388E3C' };
 
-	renderSlides() {
-		return this.props.data.map((slide) =>
-			this.renderSlide(slide)
-		);
-	}
+	onButtonPress() {
+		this.props.navigation.navigate('gzflow');
+  }
 
-	renderSlide(slide) {
-		console.debug('slide', slide);
-		const { slideStyle, slideTextStyle, slideTitleStyle } = styles;
-		return (
-			<View
-				keyExtractor={(slide) => slide.pageId}
-				style={slideStyle}
-			>
-				<Text style={slideTitleStyle}>{slide.title}</Text>
-				<Text style={slideTextStyle}>{slide.text}</Text>
-				<Image resizeMode='contain' style={{ width: '140%', flex: 8, marginTop: 5 }} source={slide.imgFile} />
-			</View>
-		);
+	updatePagination(e) {
+		if (e.nativeEvent.position === (this.props.data.length - 1)) this.setState({ buttonColor: '#8BC34A', textButton: 'Finish', currentSlide: e.nativeEvent.position });
+		else this.setState({ buttonColor: '#388E3C', textButton: 'Skip', currentSlide: e.nativeEvent.position });
 	}
 
 	renderPagination() {
 		const pages = [];
 		const size = this.props.data.length;
-		console.debug('renderpag');
-		console.debug(size);
 
 		for (let i = 0; i < size; i++) {
 			if (i === this.state.currentSlide) {
@@ -49,17 +34,25 @@ class Slides extends Component {
 		);
 	}
 
-	updatePagination(e) {
-		console.debug(e.nativeEvent.position);
-		console.debug(this.state.currentSlide);
-		if (e.nativeEvent.position === (this.props.data.length - 1)) this.setState({ buttonColor: '#8BC34A', textButton: 'Finish', currentSlide: e.nativeEvent.position });
-		else this.setState({ buttonColor: '#388E3C' , textButton: 'Skip', currentSlide: e.nativeEvent.position });
+	renderSlide(slide) {
+		const { slideStyle, slideTextStyle, slideTitleStyle } = styles;
+		return (
+			<View
+				keyExtractor={(myslide) => myslide.pageId}
+				style={slideStyle}
+			>
+				<Text style={slideTitleStyle}>{slide.title}</Text>
+				<Text style={slideTextStyle}>{slide.text}</Text>
+				<Image resizeMode='contain' style={{ width: '140%', flex: 8, marginTop: 5 }} source={slide.imgFile} />
+			</View>
+		);
 	}
 
-	onButtonPress() {
-    console.log('onButtonPress');
-		this.props.navigation.navigate('mainflow');
-  }
+	renderSlides() {
+		return this.props.data.map((slide) =>
+			this.renderSlide(slide)
+		);
+	}
 
 	render() {
 		return (
@@ -119,7 +112,7 @@ const styles = {
 		padding: 5,
 		flex: 1,
 		color: '#ffffff',
-		width: '100%', 
+		width: '100%',
 		textAlign: 'center'
 	},
 	slideTextStyle: {

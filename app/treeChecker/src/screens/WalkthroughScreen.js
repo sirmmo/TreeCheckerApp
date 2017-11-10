@@ -20,43 +20,43 @@ export const SLIDE_DATA = [
     imgFile: require('./resources/img/aoiList2.png')
   },
   {
-    pageID: 2, 
+    pageID: 2,
     title: `${strings.createAOI1}`,
     text: `${strings.createAOI1WTText}`,
     imgFile: require('./resources/img/createAOI2.png')
   },
   {
-    pageID: 3, 
+    pageID: 3,
     title: `${strings.createAOI1}`,
     text: `${strings.createAOI2WTText}`,
     imgFile: require('./resources/img/nameAOI2.png')
   },
   {
-  pageID: 4, 
+  pageID: 4,
   title: `${strings.mapWTTitle}`,
   text: `${strings.mapWTText}`,
   imgFile: require('./resources/img/mapView2.png')
   },
   {
-  pageID: 5, 
+  pageID: 5,
   title: `${strings.dataWTTitle}`,
   text: `${strings.dataWTText}`,
   imgFile: require('./resources/img/dataView2.png')
   },
   {
-  pageID: 6, 
+  pageID: 6,
   title: `${strings.detailWTTitle}`,
   text: `${strings.detailWTText}`,
   imgFile: require('./resources/img/viewSD2.png')
   },
   {
-  pageID: 7, 
+  pageID: 7,
   title: `${strings.editWTTitle}`,
   text: `${strings.editWTText}`,
   imgFile: require('./resources/img/editSD2.png')
   },
   {
-  pageID: 8, 
+  pageID: 8,
   title: `${strings.menu}`,
 	imgFile: require('./resources/img/menu2.png'),
   text: `${strings.menuWTText}`,
@@ -66,15 +66,13 @@ export const SLIDE_DATA = [
 class WalkthroughScreen extends Component {
 
 	static navigationOptions = ({ navigation, screenProps }) => ({
-    //title: 'Walkthrough',
-    //headerRight: <Button color={screenProps.tintColor} {...} />,
 		header: null,
     tabBarVisible: false
   });
 
 	onSkipButtonPress() {
     console.log('onSkipButtonPress');
-		this.props.navigation.navigate('mainflow');
+		this.props.navigation.navigate('gzflow');
   }
 
   render() {

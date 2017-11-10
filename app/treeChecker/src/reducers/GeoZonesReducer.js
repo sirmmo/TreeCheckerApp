@@ -27,12 +27,11 @@ import {
 
 const INITIAL_STATE = {
   loading: true,
-  geozonesList: {}, //Llistat de GZ
-  allAoisList: {}, //Llistat de totes les AOIs per cada GZ
+  geozonesList: {},
+  allAoisList: {},
   currentGzId: '',
-  currentGZName: "",
+  currentGZName: '',
   currentGZBbox: {},
-  // currentAoiList: [],
   fetchedImages: 0,
   fetchImagesProgress: 0.0,
   fetchImagesTotal: 0,
@@ -52,22 +51,15 @@ export default (state = INITIAL_STATE, action) => {
       return { ...INITIAL_STATE };
 
     case GEOZONES_FETCH_SUCCESS:
-      console.log('GEOZONES_FETCH_SUCCESS');
-      //console.log(action.payload);
       return { ...state, geozonesList: action.payload };
 
     case AOI_LIST_FETCH_SUCCESS:
-      console.log('AOI_LIST_FETCH_SUCCESS');
-      console.log(action.payload);
       return { ...state, currentAoiList: action.payload, loading: false };
 
     case ALL_AOIS_FETCH_SUCCESS:
-    console.log('ALL_AOIS_FETCH_SUCCESS');
-    console.log(action.payload);
       return { ...state, allAoisList: action.payload };
 
     case GZ_SELECTED:
-      console.log(action.payload);
       return { ...state, currentGzId: action.payload.id, currentGZName: action.payload.name, currentGZBbox: action.payload.bbox };
 
     case LOADING_GEOZONES_DATA:
@@ -250,9 +242,7 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, createAOIModalVisible: action.payload};
 
     case UPDATE_OBS_IMAGES: {
-      console.debug('UPDATE_OBS_IMAGES');
       const { obsKey, image_aoiId, gzId, newImageList } = action.payload;
-      // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
       return { ...state,
               allAoisList: {
                 ...state.allAoisList,
@@ -289,9 +279,7 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, fetchedImages: 0, fetchImagesProgress: 0};
 
     case UPDATE_OBS_TOSYNC: {
-    console.debug('UPDATE_OBS_TOSYNC', action.payload);
       let { sobsKey, saoiId, sgzId, sync, tree_specie } = action.payload;
-      // const list = state.allAoisList allAoisList[gzId][aoiId].obs[obsKey].images : images
       return { ...state,
               allAoisList: {
                 ...state.allAoisList,

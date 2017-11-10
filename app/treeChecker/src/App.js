@@ -4,8 +4,6 @@ import { withNetworkConnectivity } from 'react-native-offline';
 import { StackNavigator } from 'react-navigation';
 import Routes from './navigators/routes';
 import getStore from './navigators/store';
-//import WelcomeScreen from './screens/WelcomeScreen';
-
 
 class App extends Component {
 
@@ -17,7 +15,7 @@ class App extends Component {
 		});
 
 		HomeNav = withNetworkConnectivity({
-			withRedux: true // It won't inject isConnected as a prop in this case
+			withRedux: true
 		})(HomeNav);
 
     return (

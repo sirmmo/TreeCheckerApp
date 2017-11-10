@@ -4,25 +4,19 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  Modal
+  StyleSheet
 } from 'react-native';
-import { FormInput, Button, FormLabel, ListItem, Card } from 'react-native-elements';
+import { FormInput, Button, FormLabel } from 'react-native-elements';
 import { connect } from 'react-redux';
-import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview-messaging/WebView';
-import LocalizedStrings from 'react-native-localization';
 import ProgressBar from 'react-native-progress/Bar';
 import { Dialog } from 'react-native-simple-dialogs';
 
 import { downloadTiles, resetDownload, setAOIModalVisible } from '../actions';
-import { CardSection } from '../components/common';
 import { strings } from './strings.js';
 
 
 class CreateAOIScreen extends Component {
-
-	state = { isValid:false, aoiName:"", isDownloading:false };
 
 	static navigationOptions = ({ navigation, screenProps }) => ({
 		title: `${strings.createAOI1}`,
@@ -30,42 +24,30 @@ class CreateAOIScreen extends Component {
 		tabBarVisible: false
 	});
 
-	componentDidMount() {
+state = { isValid: false, aoiName: '', isDownloading: false };
 
+	componentDidMount() {
 		this.props.resetDownload();
 		this.subscribeMessages();
-
 	}
 
 	receiveServerData(json) {
-
-		if(json.webInit) {
-
+		if (json.webInit) {
 			this.sendInitParams();
-
 		} else {
-
-			this.setState({isValid: json.isValid});
-			this.setState({bbox: json.bbox});
-			this.setState({zoomLevel: json.zoom});
-
+			this.setState({ isValid: json.isValid });
+			this.setState({ bbox: json.bbox });
+			this.setState({ zoomLevel: json.zoom });
 		}
-
 	}
 
 	sendInitParams() {
-
-		const {currentGZBbox} = this.props;
-
+		const { currentGZBbox } = this.props;
 		this.webview.sendJSON({ bbox: currentGZBbox });
-		console.log("--------- Send init params: " + JSON.stringify(currentGZBbox));
-
 	}
 
 	setWebView(webview) {
-
 		this.webview = webview;
-
 	}
 
 	setModalVisible(isVisible) {
@@ -73,17 +55,15 @@ class CreateAOIScreen extends Component {
 	}
 
 	downloadData() {
-		const {bbox, zoomLevel, aoiName} = this.state;
-		const {navigation, token, currentGzId} = this.props;
-		this.setState({isDownloading: true});
-		this.props.downloadTiles({ aoiName, bbox, zoomLevel, navigation, token, currentGzId});
+		const { bbox, zoomLevel, aoiName } = this.state;
+		const { navigation, token, currentGzId } = this.props;
+		this.setState({ isDownloading: true });
+		this.props.downloadTiles({ aoiName, bbox, zoomLevel, navigation, token, currentGzId });
 	}
 
 	subscribeMessages() {
-
 		const { messagesChannel } = this.webview;
-		messagesChannel.on('json', (json) => this.receiveServerData(json) );
-
+		messagesChannel.on('json', (json) => this.receiveServerData(json));
 	}
 
 	render() {
@@ -94,7 +74,7 @@ class CreateAOIScreen extends Component {
         <View style={styles.containerButtons}>
           <Button
             iconRight
-            icon={{name: 'arrow-right', type: 'foundation'}}
+            icon={{ name: 'arrow-right', type: 'foundation' }}
             style={styles.button}
             disabled={!this.state.isValid}
             backgroundColor='#8BC34A'
@@ -113,7 +93,7 @@ class CreateAOIScreen extends Component {
         <Text style={styles.headerText}>{strings.selNewAOI}</Text>
 				<WebView
 					source={{ uri: 'file:///android_asset/web/createAOI.html' }}
-					ref={ (webview) => { this.setWebView(webview); } }
+					ref={(webview) => { this.setWebView(webview); }}
 					style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
 				/>
 			</View>
@@ -125,67 +105,28 @@ class CreateAOIScreen extends Component {
       <Dialog
           visible={this.props.createAOIModalVisible}
           title={strings.createAOI2}
-          onTouchOutside={() => this.setModalVisible(false)} >
-          <View>
-
-              <Text style={styles.headerText2}>{strings.nameAOI}</Text>
-              <FormLabel labelStyle={styles.labelName2}>{strings.name}</FormLabel>
-              <FormInput
-                underlineColorAndroid='#8BC34A'
-                placeholder={strings.aoiNameInput}
-                onChangeText={(text) => {this.setState({aoiName: text})}}
-                disabled={!this.state.isDownloading}
-              />
-
-            <View style={styles.containerButtons}>
-              {this.renderButtons()}
-            </View>
-
-          </View>
-      </Dialog>
-		);
-	}
-
-	renderModal2() {
-		return (
-
-			<Modal
-				animationType="fade"
-				transparent={true}
-				visible={this.props.createAOIModalVisible}
-				onRequestClose={() => this.setModalVisible(false)}
-				>
-        <View style={styles.containerModal}>
-        <Card
-          title={strings.nameAOI}
-          titleStyle={styles.headerText}
-          containerStyle={{ backgroundColor: '#e8f5e9'}}
-          >
-
-            <FormLabel labelStyle={styles.labelName}>{strings.name}</FormLabel>
+          onTouchOutside={() => this.setModalVisible(false)}
+      >
+        <View>
+            <Text style={styles.headerText2}>{strings.nameAOI}</Text>
+            <FormLabel labelStyle={styles.labelName2}>{strings.name}</FormLabel>
             <FormInput
               underlineColorAndroid='#8BC34A'
               placeholder={strings.aoiNameInput}
-              onChangeText={(text) => {this.setState({aoiName: text})}}
+              onChangeText={(text) => { this.setState({ aoiName: text }); }}
               disabled={!this.state.isDownloading}
             />
 
           <View style={styles.containerButtons}>
             {this.renderButtons()}
           </View>
-        </Card>
         </View>
-			</Modal>
-
+      </Dialog>
 		);
 	}
 
-
-
 	renderButtons() {
-
-		if(this.props.isDownloading) {
-
+		if (this.props.isDownloading) {
 			return (
 				<View style={styles.containerProgress}>
 					<ProgressBar
@@ -197,42 +138,31 @@ class CreateAOIScreen extends Component {
           />
 				</View>
 			);
-
-		} else {
-
-			const { aoiName } = this.state;
-			const isEnabled = aoiName.length;
-
-			return (
-				<View style={styles.rowButtons}>
-          <Button
-            buttonStyle={styles.reverseButtonStyle}
-            //buttonStyle={{flex: 1}}
-            backgroundColor='#ffffff'
-            color='#8BC34A'
-            iconRight
-
-            icon={{name: 'arrow-left', type: 'foundation', color: '#8BC34A'}}
-            onPress={() => this.setModalVisible(false)}
-            title={strings.prev}
-            accessibilityLabel={strings.close}
-          />
-					<Button
-            iconRight
-            backgroundColor='#8BC34A'
-            icon={{ name: 'download', type: 'font-awesome' }}
-						disabled={this.state.aoiName.length <= 0}
-						onPress={this.downloadData.bind(this)}
-						title={strings.download}
-					/>
-				</View>
-			);
-
 		}
-
+		return (
+			<View style={styles.rowButtons}>
+        <Button
+          buttonStyle={styles.reverseButtonStyle}
+          backgroundColor='#ffffff'
+          color='#8BC34A'
+          iconRight
+          icon={{ name: 'arrow-left', type: 'foundation', color: '#8BC34A' }}
+          onPress={() => this.setModalVisible(false)}
+          title={strings.prev}
+          accessibilityLabel={strings.close}
+        />
+				<Button
+          iconRight
+          backgroundColor='#8BC34A'
+          icon={{ name: 'download', type: 'font-awesome' }}
+					disabled={this.state.aoiName.length <= 0}
+					onPress={this.downloadData.bind(this)}
+					title={strings.download}
+				/>
+			</View>
+		);
 	}
-
-};
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -244,13 +174,6 @@ const styles = StyleSheet.create({
 		flex: 1,
     paddingBottom: 5,
 	},
-  containerModal: {
-    // alignItems: 'center',
-    // backgroundColor: 'rgba(0,0,0,0.5)',
-    // flex: 1,
-    // justifyContent: 'center',
-    // marginVertical: '50%',
-  },
   headerText: {
     fontWeight: 'bold',
     textAlign: 'center',
@@ -283,7 +206,6 @@ const styles = StyleSheet.create({
     margin: 5
 	},
   reverseButtonStyle: {
-
 		borderColor: '#8BC34A',
 		borderWidth: 1
 	},
@@ -299,8 +221,6 @@ const styles = StyleSheet.create({
   },
   containerButtons: {
     paddingTop: 5,
-
-    //minHeight: '15%',
     justifyContent: 'center',
     flexDirection: 'row'
   },

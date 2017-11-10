@@ -12,22 +12,17 @@ import { strings } from './strings.js';
 
 class MenuScreen extends Component {
 
-  goToMainFlow() {
+  goToGZFlow() {
+
+    this.props.navigation.navigate('gzflow');
 
     // const resetAction = NavigationActions.reset({
     //   index: 0,
     //   actions: [
-    //     NavigationActions.navigate({ routeName: 'mainflow' })
+    //     NavigationActions.navigate({ routeName: 'gzflow' })
     //   ]
-    // });
+    // })
     // this.props.navigation.dispatch(resetAction);
-    this.props.navigation.navigate('mainflow');
-    const navigateAction = NavigationActions.navigate({
-      routeName: 'mainflow',
-      params: {},
-      action: {}
-    })
-    this.props.navigation.dispatch(navigateAction)
   }
 
   render() {
@@ -57,7 +52,7 @@ class MenuScreen extends Component {
            titleStyle={{fontSize: 20}}
            containerStyle={styles.listItem}
            leftIcon={{name: 'exchange', type: 'font-awesome'}}
-           onPress={() => this.goToMainFlow()}
+           onPress={() => this.goToGZFlow()}
              />
       </List>
 

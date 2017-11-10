@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { ConnectivityRenderer } from 'react-native-offline';
 
 import { usernameChanged, passwordChanged, loginUser } from '../actions';
-import { Card, MySpinner, CardSection } from '../components/common';
+import { MySpinner, CardSection } from '../components/common';
 import { strings } from './strings.js';
 
 
@@ -27,7 +27,7 @@ class LoginScreen extends Component {
   }
 
   onButtonPress() {
-    const { username, password, navigation, isConnected } = this.props;
+    const { username, password, navigation } = this.props;
     console.log(username);
     console.log(password);
     this.props.loginUser({ username, password, navigation });
@@ -44,6 +44,8 @@ class LoginScreen extends Component {
         backgroundColor='#8BC34A'
         title={strings.login}
         underlayColor='#c2c2c2'
+        // iconRight
+        // icon={{ name: 'login', font: 'simple-line-icon' }}
         onPress={this.onButtonPress.bind(this)}
       />
     );

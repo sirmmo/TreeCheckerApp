@@ -3,59 +3,45 @@
 import React, { Component } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
 } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import StaticServer from 'react-native-static-server';
 import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview-messaging/WebView';
 import { connect } from 'react-redux';
-import {  setUrlMapOffline, obsCreate, refreshSelectedAoiByIndex } from '../actions';
+import { MySpinner } from '../components/common';
+import { obsCreate, refreshSelectedAoiByIndex, setLoadingMap } from '../actions';
 import { strings } from './strings.js';
 
 class MapScreen extends Component {
 
   static navigationOptions = ({ navigation, screenProps }) => ({
     title: `${strings.mapTabName}`,
-    headerRight: <Button icon={{name: 'menu'}} onPress={() => console.log('onPress Menu')} />,
-    //tabBarVisible: false,
-    // tabBarIcon: <Icon name='map' size={24} />,
-    // titleStyle: {
-    //   color: '#FFFF00'
-    // }
+    headerRight: <Button icon={{ name: 'menu' }} onPress={() => console.log('onPress Menu')} />,
   });
 
   componentDidMount() {
-    console.debug('------------------------------------------componentDidMount');
     this.initServer();
 
-    if (this.props.navigation.state.params && this.props.navigation.state.params.action
-        && this.props.navigation.state.params.action === 'goTo') {
-
+    if (this.props.mapAction.action === 'goTo') {
       this.goto = {
-        latitude: this.props.navigation.state.params.latitude,
-        longitude: this.props.navigation.state.params.longitude
+        latitude: this.props.mapAction.latitude,
+        longitude: this.props.mapAction.longitude
       };
-
     }
 
     const { messagesChannel } = this.webview;
     messagesChannel.on('json', json => {
-      console.debug(json);
       this.processMapAction(json);
     });
-
   }
 
   componentDidUpdate() {
-
     this.sendDataToMap();
-
   }
 
   processMapAction(json) {
-
     switch (json.action) {
 
       case 'addObservation':
@@ -63,8 +49,7 @@ class MapScreen extends Component {
           latitude: json.latitude,
           longitude: json.longitude
         };
-        //console.debug('this.props.currentAoi.obs.length', this.props.currentAoi.obs.length);
-        this.props.obsCreate(pos, Object.keys(this.props.currentAoi.obs).length+1);
+        this.props.obsCreate(pos, Object.keys(this.props.currentAoi.obs).length + 1);
         this.props.navigation.navigate('createdata');
         return;
 
@@ -74,63 +59,49 @@ class MapScreen extends Component {
         return;
 
       case 'webInit':
-        if(this.goto) {
-          this.initMapaByCenter(this.goto, this.props.currentAoi.obs, this.offlineURL );
-        }
-        else {
+        if (this.goto) {
+          this.initMapaByCenter(this.goto, this.props.currentAoi.obs, this.offlineURL);
+        } else {
           this.initMapaByBbox(this.props.currentAoi.bbox, this.props.currentAoi.obs, this.offlineURL);
         }
         this.goto = null;
         return;
 
       default:
-        return console.debug('action del mapa no controlada: ', json);
+        return console.debug('Map action not controlled: ', json);
     }
   }
 
   initMapaByBbox(bbox, obs, url) {
-
+    this.props.setLoadingMap(false);
     this.webview.sendJSON({ bbox, obs, url });
-
   }
 
   initMapaByCenter(point, obs, url) {
-
-    this.webview.sendJSON({ latitude: point.latitude, longitude:point.longitude, obs, url });
-
+    this.props.setLoadingMap(false);
+    this.webview.sendJSON({ latitude: point.latitude, longitude: point.longitude, obs, url });
   }
 
   sendDataToMap() {
-
-    if (this.props.navigation.state.params && this.props.navigation.state.params.action
-        && this.props.navigation.state.params.action === 'goTo') {
-
+    this.props.setLoadingMap(false);
+    if (this.props.mapAction.action === 'goTo') {
       const goto = {
-        latitude: this.props.navigation.state.params.latitude,
-        longitude: this.props.navigation.state.params.longitude
+        latitude: this.props.mapAction.latitude,
+        longitude: this.props.mapAction.longitude
       };
-
       this.webview.sendJSON({ latitude: goto.latitude, longitude: goto.longitude });
-
     }
-
     this.webview.sendJSON({ obs: this.props.currentAoi.obs });
-
   }
 
   initServer() {
-    console.debug(RNFS.ExternalDirectoryPath);
     const myserver = new StaticServer(8080, RNFS.ExternalDirectoryPath);
-    console.debug(myserver);
-    // Start the server
     myserver.start().then((url) => {
-
       this.offlineURL = url;
-
     });
   }
 
-  stopServer(){
+  stopServer() {
     this.props.server.stop();
   }
 
@@ -138,14 +109,25 @@ class MapScreen extends Component {
     this.webview = webview;
   }
 
+renderSpinner() {
+  if (this.props.loadingMap) {
+    return (
+      <MySpinner mystyle={{ position: 'absolute', zIndex: 1, marginTop: 50 }} size="large" />
+    );
+  }
+}
+
   render() {
     return (
       <View style={styles.container}>
-        <WebView
-          source={{ uri: 'file:///android_asset/web/baseMap.html' }}
-          ref={this._refWebView}
-          style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
-        />
+        {this.renderSpinner()}
+        <View style={{ width: '100%', height: '100%' }}>
+          <WebView
+            source={{ uri: 'file:///android_asset/web/baseMap.html' }}
+            ref={this._refWebView}
+            style={{ flex: 1, borderBottomWidth: 1, padding: 20 }}
+          />
+        </View>
       </View>
     );
   }
@@ -155,18 +137,19 @@ class MapScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
 });
 
 const mapStateToProps = ({ auth, mapData }) => {
-  //const { currentAoiList } = geoZonesData;
   const { token } = auth;
-  const { currentAoi } = mapData;
-  return { token, currentAoi };
+  const { currentAoi, loadingMap, mapAction } = mapData;
+  return { token, currentAoi, loadingMap, mapAction };
 };
 
 const myMapScreen = connect(mapStateToProps, {
-  setUrlMapOffline,
+  setLoadingMap,
   obsCreate,
   refreshSelectedAoiByIndex
 })(MapScreen);

@@ -58,7 +58,6 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, error: 'Authentication Failed.', loading: false };
 
     case UPDATE_USER_DATA:
-      console.debug('UPDATE_USER_DATA', action.payload);
       return { ...state, userData: action.payload };
 
     case offlineActionTypes.FETCH_OFFLINE_MODE:

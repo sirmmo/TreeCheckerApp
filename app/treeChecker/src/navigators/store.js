@@ -17,9 +17,7 @@ export default function getStore() {
       autoRehydrate())
     );
 
-    persistStore(store, { storage: AsyncStorage, blacklist: ['obsData', 'mapData', 'network'] }, () => {
-      console.debug('***********rehydration complete');
-    });
+    persistStore(store, { storage: AsyncStorage, blacklist: ['obsData', 'mapData', 'network'] }, () => { /*log*/ });
 
     return store;
 }
